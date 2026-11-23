@@ -162,6 +162,19 @@ p{margin:0 0 10px}
 .loading{display:grid;place-items:center;min-height:60vh;text-align:center}
 .spin{width:54px;height:54px;border-radius:50%;border:5px solid var(--coralbg);border-top-color:var(--coral);animation:sp 1s linear infinite;margin:0 auto 16px}
 @keyframes sp{to{transform:rotate(360deg)}}
+.fig{padding:12px}.fig svg{display:block}
+.cap{font-size:13.5px;color:var(--soft);text-align:center;margin-top:6px}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.trio .card{padding:10px 6px;margin:0;text-align:center}.trio b{display:block;font-size:15px}.trio span{font-size:12px;color:var(--soft);display:block;line-height:1.25}
+.trio .on{outline:2.5px solid var(--coral)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.cmp .card{margin:0;padding:12px}.cmp p{font-size:13.5px;margin:6px 0 0}
+.tag{font-size:12.5px;font-weight:800;border-radius:999px;padding:3px 10px;display:inline-block;margin-bottom:6px}
+.tag.bad{background:#FDE6E6;color:#D23B3B}.tag.good{background:var(--greenbg);color:var(--green)}
+.avatar{overflow:hidden;padding:0}.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.bigav{width:84px;height:84px;border-radius:50%;background:var(--coralbg);color:var(--coral);display:grid;place-items:center;font-weight:800;font-size:32px;overflow:hidden;flex:0 0 auto}
+.bigav img{width:100%;height:100%;object-fit:cover}
+.opt.lockd{opacity:.55}
+.info .in{width:100%;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:#fff;font-size:16px;outline:none;margin-top:8px}.info .in:focus{border-color:var(--coral)}
 .version{color:#B5B2AA;font-size:12px;text-align:center;margin-top:18px}
 </style>
 </head>
@@ -175,14 +188,14 @@ p{margin:0 0 10px}
 <script src="config.js"></script>
 <script>
 "use strict";
-const VERSAO = "1.1.0";
+const VERSAO = "1.2.0";
 const C = window.SC_CONFIG || {};
 const DEMO = !C.firebase;          // sem Firebase = modo demonstração
 const IA_SIMULADA = !C.workerUrl;  // sem servidor = IA simulada
 
 // ===== Regras dos planos (iguais às do servidor) =====
 const REGRAS = {
-  testeAnalises: 3,   // análises grátis para experimentar
+  testeAnalises: 2,   // análises grátis para experimentar
   mensal: 30, anual: 30, vitalicio: 10
 };
 
@@ -360,6 +373,145 @@ const OBJETIVOS = [
 ];
 const TONS = [["simpatico","Simpático"],["profissional","Profissional"],["urgente","Urgente"]];
 
+// ===== Ilustrações (desenhos das aulas e roteiros) =====
+const IL=(()=>{
+  const CO="#FF5E3A",GR="#1FA56A",RD="#D23B3B",GD="#F5B700",INK="#1C1C24",SOFT="#76747F";
+  const f=n=>(+n).toFixed(1);
+  let uid=0;
+  const mesa=(x,y,w)=>`<path d="M${x} ${y} L${x+w} ${y} L${x+w-14} ${y+16} L${x+14} ${y+16} Z" fill="#EADFCD"/><line x1="${x}" y1="${y}" x2="${x+w}" y2="${y}" stroke="#CDBFA9" stroke-width="2"/>`;
+  function caneca(cx,base,w=56,h=58){
+    const x0=cx-w/2;
+    return `<ellipse cx="${cx}" cy="${base+2}" rx="${w/2+6}" ry="${f(Math.max(3,w*.1))}" fill="#00000014"/>
+<path d="M${x0} ${base-h} L${x0} ${base-6} Q${x0} ${base} ${cx} ${base} Q${x0+w} ${base} ${x0+w} ${base-6} L${x0+w} ${base-h}" fill="#fff" stroke="${INK}" stroke-width="2.5"/>
+<path d="M${x0+w} ${f(base-h+h*.2)} q${f(w*.4)} 0 ${f(w*.4)} ${f(h*.31)} q0 ${f(h*.31)} -${f(w*.4)} ${f(h*.31)}" fill="none" stroke="${INK}" stroke-width="2.5"/>
+<ellipse cx="${cx}" cy="${base-h}" rx="${w/2}" ry="${f(Math.max(3,w*.125))}" fill="#F2E7D8" stroke="${INK}" stroke-width="2.5"/>
+<ellipse cx="${cx}" cy="${base-h+1}" rx="${f(w/2-Math.max(2,w*.1))}" ry="${f(Math.max(2,w*.07))}" fill="#8A5A3B"/>`;
+  }
+  // celular visto de lado: ecrã azul, câmera de trás virada para o alvo e "cone" do que a câmera vê
+  function cel(cx,cy,tx,ty,s=1,cor=CO,tw=40,th=40,cone=true){
+    const t=Math.atan2(ty-cy,tx-cx), g=t*180/Math.PI;
+    const lx=9*s,ly=-22*s, gx=cx+lx*Math.cos(t)-ly*Math.sin(t), gy=cy+lx*Math.sin(t)+ly*Math.cos(t);
+    let o="";
+    if(cone){
+      const p=[[tx-tw/2,ty-th/2],[tx+tw/2,ty+th/2],[tx-tw/2,ty+th/2],[tx+tw/2,ty-th/2]].sort((a,b)=>Math.atan2(a[1]-gy,a[0]-gx)-Math.atan2(b[1]-gy,b[0]-gx));
+      o+=`<polygon points="${f(gx)},${f(gy)} ${f(p[0][0])},${f(p[0][1])} ${f(p[3][0])},${f(p[3][1])}" fill="${cor}" opacity=".13"/>
+<line x1="${f(gx)}" y1="${f(gy)}" x2="${tx}" y2="${ty}" stroke="${cor}" stroke-width="${f(2*s)}" stroke-dasharray="${f(5*s)} ${f(5*s)}"/>`;
+    }
+    const w=14*s,h=74*s;
+    return o+`<g transform="translate(${cx} ${cy}) rotate(${f(g)})">
+<rect x="${f(-w/2+2*s)}" y="${f(-h/2+2*s)}" width="${f(w)}" height="${f(h)}" rx="${f(5*s)}" fill="#00000022"/>
+<rect x="${f(-w/2)}" y="${f(-h/2)}" width="${f(w)}" height="${f(h)}" rx="${f(5*s)}" fill="#3A3A48"/>
+<rect x="${f(-w/2)}" y="${f(-h/2)}" width="${f(w*.32)}" height="${f(h)}" rx="${f(3*s)}" fill="#7FB3FF"/>
+<rect x="${f(-w/2+w*.32)}" y="${f(-h/2)}" width="${f(w*.68)}" height="${f(h)}" rx="${f(4*s)}" fill="#2A2A35"/>
+<rect x="${f(w/2-s)}" y="${f(-31*s)}" width="${f(5*s)}" height="${f(18*s)}" rx="${f(2*s)}" fill="${INK}"/>
+<circle cx="${f(w/2+3*s)}" cy="${f(-22*s)}" r="${f(3.2*s)}" fill="#5A5A6A" stroke="${INK}" stroke-width="${f(s)}"/>
+<rect x="${f(-w/2-1.5*s)}" y="${f(-10*s)}" width="${f(2*s)}" height="${f(12*s)}" rx="1" fill="#2A2A35"/></g>`;
+  }
+  // celular visto de frente (ecrã)
+  const telaFrente=(x,y,w,h,dentro)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="22" fill="#2A2A35"/><rect x="${x+8}" y="${y+10}" width="${w-16}" height="${h-20}" rx="14" fill="#F1E7D8"/>${dentro}`;
+  const txt=(x,y,linhas,cor=SOFT,tam=12.5,peso=400)=>linhas.map((l,i)=>`<text x="${x}" y="${y+i*16}" font-size="${tam}" font-weight="${peso}" fill="${cor}">${l}</text>`).join("");
+  const svg=(vb,c)=>`<svg viewBox="${vb}" width="100%" role="img">${c}</svg>`;
+  const garrafa=(x,base,w=36,h=86)=>`<ellipse cx="${x+w/2}" cy="${base+2}" rx="${w/2+6}" ry="4" fill="#00000014"/><rect x="${x+w*.3}" y="${base-h-14}" width="${w*.4}" height="16" rx="3" fill="${INK}"/><rect x="${x}" y="${base-h}" width="${w}" height="${h}" rx="10" fill="#fff" stroke="${INK}" stroke-width="2.5"/><rect x="${x+4}" y="${base-h*.62}" width="${w-8}" height="${h*.32}" fill="#FFB49F"/>`;
+  const prato=(cx,cy,rx=70)=>`<ellipse cx="${cx}" cy="${cy+3}" rx="${rx+4}" ry="${rx*.17+2}" fill="#00000012"/><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${rx*.17}" fill="#fff" stroke="${INK}" stroke-width="2.5"/><ellipse cx="${cx}" cy="${cy-1}" rx="${rx*.62}" ry="${rx*.1}" fill="#F4EDE2"/><circle cx="${cx-16}" cy="${cy-6}" r="${rx*.12}" fill="#E8A33D"/><circle cx="${cx+10}" cy="${cy-7}" r="${rx*.1}" fill="#C94F4F"/><circle cx="${cx+26}" cy="${cy-4}" r="${rx*.07}" fill="#6BAA55"/>`;
+
+  const A={};
+  A.a45={cap:"A 45°: o ângulo que funciona para quase tudo",svg:()=>svg("0 0 340 205",`${mesa(10,178,320)}${caneca(185,178)}${cel(70,60,185,148,1.05,CO,60,60)}
+<path d="M135 148 A50 50 0 0 1 149.6 112.6" fill="none" stroke="${GD}" stroke-width="3"/><line x1="185" y1="148" x2="120" y2="148" stroke="#B9B2A6" stroke-width="1.5" stroke-dasharray="3 4"/>
+<text x="88" y="150" font-size="20" font-weight="800" fill="${INK}">45°</text>${txt(232,34,["câmera de trás","virada para","o produto"])}`)};
+  A.a90={cap:"A 90° (de cima): pratos, mesas e peças estendidas",svg:()=>svg("0 0 340 205",`${mesa(10,178,320)}${prato(185,166)}${cel(185,38,185,162,1.05,CO,140,18)}
+<path d="M185 120 L200 120 L200 135" fill="none" stroke="${GD}" stroke-width="2.5"/><text x="206" y="132" font-size="20" font-weight="800" fill="${INK}">90°</text>${txt(14,40,["celular reto,","paralelo","à mesa"])}`)};
+  A.a0={cap:"A 0° (de frente): frascos com rótulo, objetos altos e pessoas",svg:()=>svg("0 0 340 205",`${mesa(10,178,320)}${garrafa(205,178)}${cel(60,134,223,134,1.05,CO,40,80)}
+<text x="120" y="122" font-size="20" font-weight="800" fill="${INK}">0°</text>${txt(256,60,["na altura","do rótulo"])}`)};
+  A.trio={cap:"Os 3 ângulos principais",html:()=>{
+    const t=mesa(8,76,84);
+    const m=(k,nome,d,on)=>`<div class="card ${on?"on":""}">${svg("0 0 100 92",k)}<b>${nome}</b><span>${d}</span></div>`;
+    return `<div class="trio">${m(`${t}<ellipse cx="50" cy="70" rx="24" ry="7" fill="#fff" stroke="${INK}" stroke-width="2"/>${cel(50,20,50,70,.55,CO,44,10)}`,"90°","de cima",0)}${m(`${t}${caneca(62,76,22,24)}${cel(24,28,62,62,.55,CO,24,24)}`,"45°","quase tudo",1)}${m(`${t}<rect x="62" y="34" width="20" height="42" rx="6" fill="#fff" stroke="${INK}" stroke-width="2"/><rect x="64" y="48" width="16" height="11" fill="#FFB49F"/>${cel(20,55,72,55,.55,CO,20,40)}`,"0°","de frente",0)}</div>`;}};
+  A.eviteFaca={cap:"",html:()=>`<div class="cmp"><div class="card"><span class="tag bad">✕ Evite</span>${svg("0 0 140 100",`${mesa(6,84,128)}${caneca(86,84,26,30)}${cel(70,36,86,66,.55,RD,26,30)}${txt(6,20,["perto e torto"],RD,11,700)}`)}<p>Celular perto e inclinado deforma o produto.</p></div>
+<div class="card"><span class="tag good">✓ Faça</span>${svg("0 0 140 100",`${mesa(6,84,128)}${caneca(100,84,26,30)}${cel(30,30,100,66,.55,GR,30,30)}${txt(58,20,["afaste e use 2x"],GR,11,700)}`)}<p>Afaste um passo e use a lente 2x.</p></div></div>`};
+  A.janela={cap:"Luz da janela de lado + folha branca do outro lado",svg:()=>svg("0 0 340 205",`${mesa(10,178,320)}
+<polygon points="70,42 70,150 235,178 150,120" fill="#FFE59A" opacity=".55"/>
+<rect x="14" y="30" width="56" height="124" rx="4" fill="#DCEBFA" stroke="#9BB8D6" stroke-width="3"/><line x1="42" y1="30" x2="42" y2="154" stroke="#9BB8D6" stroke-width="2.5"/><line x1="14" y1="92" x2="70" y2="92" stroke="#9BB8D6" stroke-width="2.5"/>
+${caneca(185,178,52,54)}
+<g transform="rotate(-10 290 135)"><rect x="284" y="88" width="9" height="90" rx="2" fill="#fff" stroke="#CFC7BA" stroke-width="2"/></g>
+<path d="M280 132 Q252 128 222 140" fill="none" stroke="${GD}" stroke-width="2" stroke-dasharray="4 4"/>
+${txt(14,22,["janela: luz de lado"],INK,12.5,700)}${txt(232,40,["folha branca","clareia a sombra"])}`)};
+  A.grade={cap:"Produto num dos cruzamentos da grade, não no meio",svg:()=>{
+    const x=110,y=6,w=124,h=192,ix=x+8,iy=y+10,iw=w-16,ih=h-20;
+    const vx=[ix+iw/3,ix+2*iw/3], vy=[iy+ih/3,iy+2*ih/3];
+    const lin=vx.map(v=>`<line x1="${f(v)}" y1="${iy}" x2="${f(v)}" y2="${iy+ih}" stroke="#fff" stroke-width="1.6"/>`).join("")+vy.map(v=>`<line x1="${ix}" y1="${f(v)}" x2="${ix+iw}" y2="${f(v)}" stroke="#fff" stroke-width="1.6"/>`).join("");
+    const pts=vx.flatMap(a=>vy.map(b=>`<circle cx="${f(a)}" cy="${f(b)}" r="3.5" fill="${CO}"/>`)).join("");
+    return svg("0 0 340 205",telaFrente(x,y,w,h,`<rect x="${ix}" y="${f(iy+ih*.72)}" width="${iw}" height="${f(ih*.28)}" rx="0" fill="#E3D3BC"/>${caneca(vx[0],vy[1]+20,30,32)}${lin}${pts}<circle cx="${f(vx[0])}" cy="${f(vy[1])}" r="9" fill="none" stroke="${CO}" stroke-width="2.5"/>`)+txt(250,90,["ponha o","produto num","cruzamento"])+txt(8,90,["grade ligada","na câmera"]));}};
+  A.fundo={cap:"Cartolina curvada da mesa até a parede, sem dobra",svg:()=>svg("0 0 340 205",`${mesa(10,180,320)}
+<path d="M110 176 L250 176 Q300 176 300 126 L300 16" fill="none" stroke="#D9CFC0" stroke-width="14" stroke-linecap="round"/><path d="M110 176 L250 176 Q300 176 300 126 L300 16" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/>
+${caneca(220,172,44,46)}${cel(60,100,220,148,1,CO,46,46)}${txt(196,28,["cartolina","curvada"],INK,12.5,700)}${txt(196,60,["sem dobra:","o canto some"])}`)};
+  A.foco={cap:"Toque no produto e ajuste a luz antes de clicar",svg:()=>{
+    const x=110,y=6,w=124,h=192;
+    return svg("0 0 340 205",telaFrente(x,y,w,h,`<rect x="118" y="130" width="108" height="58" fill="#E3D3BC"/>${caneca(166,140,36,38)}
+<rect x="140" y="92" width="56" height="56" fill="none" stroke="${GD}" stroke-width="2.5"/><line x1="208" y1="84" x2="208" y2="156" stroke="${GD}" stroke-width="2"/><circle cx="208" cy="104" r="6" fill="${GD}"/>
+<circle cx="168" cy="122" r="15" fill="#ffffff66" stroke="#fff" stroke-width="2"/>`)+txt(6,100,["1. toque","no produto"],INK,12.5,700)+txt(248,96,["2. arraste","o sol para","clarear"],INK,12.5,700));}};
+  A.retrato={cap:"Modo Retrato: fique a 1–2 metros e use pouco desfoque",svg:()=>{const id="bl"+(++uid);return svg("0 0 340 205",`<defs><filter id="${id}"><feGaussianBlur stdDeviation="6"/></filter></defs>
+<g filter="url(#${id})"><circle cx="270" cy="50" r="26" fill="#9FD3A8"/><circle cx="310" cy="90" r="22" fill="#F6C36B"/><circle cx="196" cy="40" r="18" fill="#9BC1EE"/></g>
+<line x1="10" y1="180" x2="330" y2="180" stroke="#CDBFA9" stroke-width="2"/>
+<path d="M200 180 L200 128 Q200 104 230 104 Q260 104 260 128 L260 180 Z" fill="${CO}"/><circle cx="230" cy="80" r="20" fill="#E8B795"/>
+${cel(60,90,230,100,1,CO,60,120)}
+<line x1="86" y1="160" x2="190" y2="160" stroke="${INK}" stroke-width="1.8" marker-start="url(#s${id})" marker-end="url(#e${id})"/>
+<defs><marker id="e${id}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8z" fill="${INK}"/></marker><marker id="s${id}" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8 0 L0 4 L8 8z" fill="${INK}"/></marker></defs>
+${txt(104,152,["1 a 2 metros"],INK,12.5,700)}${txt(240,22,["fundo desfocado"])}`);}};
+  A.formatos={cap:"Tire a foto já pensando onde vai postar",svg:()=>{
+    const q=(x,w,h,n,r)=>`<rect x="${x}" y="${150-h}" width="${w}" height="${h}" rx="10" fill="#F1E7D8" stroke="${INK}" stroke-width="2.2"/>${caneca(x+w/2-4,150-h*.2,w*.3,w*.32)}<text x="${x+w/2}" y="172" text-anchor="middle" font-size="13" font-weight="800" fill="${INK}">${n}</text><text x="${x+w/2}" y="189" text-anchor="middle" font-size="12" fill="${CO}" font-weight="700">${r}</text>`;
+    return svg("0 0 340 200",q(14,84,105,"Feed","4:5 ou 3:4")+q(128,72,128,"Stories","9:16")+q(232,96,96,"WhatsApp","1:1 catálogo"));}};
+  A.edicao={cap:"Ajustes leves, nesta ordem",svg:()=>{
+    const it=[["Recortar",0],["Luz",.62],["Contraste",.56],["Calor",.58],["Nitidez",.54]];
+    return svg("0 0 340 200",it.map(([n,v],i)=>{const y=24+i*36;return `<circle cx="22" cy="${y}" r="12" fill="${CO}"/><text x="22" y="${y+4.5}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff">${i+1}</text><text x="44" y="${y+5}" font-size="14" font-weight="700" fill="${INK}">${n}</text>${v?`<line x1="140" y1="${y}" x2="320" y2="${y}" stroke="#E5DED3" stroke-width="6" stroke-linecap="round"/><line x1="230" y1="${y-7}" x2="230" y2="${y+7}" stroke="#B9B2A6" stroke-width="2"/><line x1="140" y1="${y}" x2="${140+180*v}" y2="${y}" stroke="${CO}" stroke-width="6" stroke-linecap="round"/><circle cx="${140+180*v}" cy="${y}" r="9" fill="#fff" stroke="${CO}" stroke-width="3"/>`:`<text x="140" y="${y+5}" font-size="12.5" fill="${SOFT}">endireite e tire as sobras</text>`}`;}).join("")+`<text x="320" y="196" text-anchor="end" font-size="12" fill="${SOFT}">só um pouco além do meio!</text>`);}};
+  A.sequencia={cap:"A sequência mínima de fotos de um produto",svg:()=>{
+    const fr=(i,n,c)=>{const x=6+i*67;return `<rect x="${x}" y="8" width="60" height="70" rx="10" fill="#F1E7D8" stroke="#E2D6C3"/>${c(x)}<text x="${x+30}" y="96" text-anchor="middle" font-size="11.5" font-weight="700" fill="${INK}">${n}</text>`;};
+    return svg("0 0 340 104",fr(0,"Frente",x=>caneca(x+27,66,24,26))+fr(1,"Lado",x=>`<rect x="${x+18}" y="38" width="24" height="28" rx="4" fill="#fff" stroke="${INK}" stroke-width="2"/>`)+fr(2,"Detalhe",x=>`<circle cx="${x+30}" cy="42" r="20" fill="#fff" stroke="${INK}" stroke-width="2"/><path d="M${x+18} 42 q6 -8 12 0 t12 0" fill="none" stroke="${CO}" stroke-width="2"/>`)+fr(3,"Em uso",x=>`${caneca(x+30,66,22,24)}<path d="M${x+6} 60 q10 -10 20 -2" fill="none" stroke="#E8B795" stroke-width="7" stroke-linecap="round"/>`)+fr(4,"Escala",x=>`${caneca(x+22,66,18,20)}<rect x="${x+38}" y="36" width="12" height="30" rx="3" fill="#2A2A35"/>`));}};
+  A.carrossel={cap:"Ordem que prende a atenção: deslize ➜",svg:()=>{
+    const n=["Capa","Detalhe","Em uso","Preço","Comprar"];
+    return svg("0 0 340 130",n.map((t,i)=>{const x=8+i*64;return `<rect x="${x}" y="14" width="58" height="76" rx="10" fill="${i===0?CO:"#fff"}" stroke="${i===0?CO:"#E2D6C3"}" stroke-width="2"/><text x="${x+29}" y="58" text-anchor="middle" font-size="22" font-weight="800" fill="${i===0?"#fff":INK}">${i+1}</text><text x="${x+29}" y="108" text-anchor="middle" font-size="11.5" font-weight="700" fill="${INK}">${t}</text>`;}).join("")+`<path d="M120 124 L220 124" stroke="${SOFT}" stroke-width="2" marker-end="url(#ca)"/><defs><marker id="ca" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8z" fill="${SOFT}"/></marker></defs>`);}};
+  A.selfie={cap:"Celular um pouco acima dos olhos, rosto para a janela",svg:()=>svg("0 0 340 205",`<rect x="290" y="30" width="40" height="120" rx="4" fill="#DCEBFA" stroke="#9BB8D6" stroke-width="3"/><polygon points="290,40 290,140 200,150 200,70" fill="#FFE59A" opacity=".5"/>
+<path d="M150 200 L150 160 Q150 136 180 136 Q210 136 210 160 L210 200 Z" fill="${CO}"/><circle cx="180" cy="110" r="24" fill="#E8B795"/>
+<path d="M162 150 Q120 120 104 78" fill="none" stroke="#E8B795" stroke-width="10" stroke-linecap="round"/>
+${cel(100,62,178,104,.85,CO,40,44)}${txt(12,140,["um pouco acima","dos olhos"],INK,12.5,700)}${txt(232,182,["luz no rosto"])}`)};
+  A.cintura={cap:"Look: celular na altura da cintura, reto, a alguns passos",svg:()=>svg("0 0 340 205",`<line x1="10" y1="190" x2="330" y2="190" stroke="#CDBFA9" stroke-width="2"/>
+<circle cx="256" cy="34" r="14" fill="#E8B795"/><path d="M238 52 Q256 46 274 52 L280 120 L232 120 Z" fill="${CO}"/><rect x="238" y="120" width="14" height="68" rx="5" fill="#3A3A48"/><rect x="260" y="120" width="14" height="68" rx="5" fill="#3A3A48"/>
+${cel(52,112,256,112,1,CO,70,170)}<line x1="20" y1="112" x2="330" y2="112" stroke="#B9B2A6" stroke-width="1.2" stroke-dasharray="3 5"/>${txt(12,172,["altura da cintura"],INK,12.5,700)}${txt(120,36,["corpo inteiro,","sem cortar os pés"])}`)};
+  A.horizonte={cap:"Horizonte reto, na linha de cima ou de baixo da grade",svg:()=>{
+    const x=110,y=6,w=124,h=192,ix=118,iy=16,iw=108,ih=172,hy=iy+ih*2/3;
+    return svg("0 0 340 205",telaFrente(x,y,w,h,`<rect x="${ix}" y="${iy}" width="${iw}" height="${f(hy-iy)}" fill="#BFE0F7"/><rect x="${ix}" y="${f(hy)}" width="${iw}" height="${f(iy+ih-hy)}" rx="0" fill="#6FB3D2"/><circle cx="196" cy="60" r="12" fill="${GD}"/><path d="M${ix} ${f(hy)} L150 ${f(hy-26)} L170 ${f(hy-12)} L188 ${f(hy-32)} L${ix+iw} ${f(hy)} Z" fill="#7FA36B"/>
+${[ix+iw/3,ix+2*iw/3].map(v=>`<line x1="${f(v)}" y1="${iy}" x2="${f(v)}" y2="${iy+ih}" stroke="#fff" stroke-width="1.4" opacity=".9"/>`).join("")}${[iy+ih/3,hy].map(v=>`<line x1="${ix}" y1="${f(v)}" x2="${ix+iw}" y2="${f(v)}" stroke="#fff" stroke-width="1.4" opacity=".9"/>`).join("")}<line x1="${ix}" y1="${f(hy)}" x2="${ix+iw}" y2="${f(hy)}" stroke="${CO}" stroke-width="2.5"/>`)+txt(248,128,["horizonte","na linha","de baixo"],INK,12.5,700)+txt(6,100,["grade +","nível ligados"]));}};
+  return {
+    html(k){const a=A[k]; if(!a) return ""; const corpo=a.html?a.html():`<div class="card fig">${a.svg()}${a.cap?`<div class="cap">${a.cap}</div>`:""}</div>`; return a.html&&a.cap?`${corpo}<div class="cap" style="margin:-4px 0 12px">${a.cap}</div>`:corpo;}
+  };
+})();
+const IL_AULA={luz:["janela"],grade:["grade"],fundo:["fundo"],angulos:["a45","trio","eviteFaca"],foco:["foco"],retrato:["retrato"],formatos:["formatos"],edicao:["edicao"],vendas:["sequencia"],carrossel:["carrossel"]};
+const IL_SIT={produto:["a45","janela"],roupa:["a90","cintura"],comida:["a90","a45"],beleza:["a0","janela"],acessorios:["a45"],artesanato:["a45","janela"],cafe:["a90","janela"],selfie:["selfie"],look:["cintura"],viagem:["horizonte"],restaurante:["a90"],pet:["a0"]};
+const INTRO_AULA={
+  luz:"Luz é 70% de uma boa foto. E a melhor luz é de graça: a da janela.",
+  grade:"Fotos com o assunto fora do meio ficam mais interessantes e profissionais.",
+  fundo:"Um fundo limpo faz o produto parecer mais caro e deixa a foto com cara de loja.",
+  angulos:"A altura do celular muda tudo. Veja onde ele fica em cada caso.",
+  foco:"Dois toques na tela resolvem foto desfocada, escura ou estourada.",
+  retrato:"O modo Retrato destaca o assunto, mas exagerar deixa a foto artificial.",
+  formatos:"Cada lugar tem um formato. Tirar no formato certo evita cortes estranhos.",
+  edicao:"Editar bem é ajustar pouco. Siga sempre a mesma ordem.",
+  vendas:"Quem compra pelo celular não pode tocar no produto: as fotos fazem esse papel.",
+  carrossel:"Um carrossel bem montado faz a pessoa deslizar até o fim, e comprar."
+};
+const ERRO_AULA={
+  luz:["Flash do celular e lâmpada amarela","Luz de janela vindo de lado"],
+  grade:["Tudo sempre bem no meio","Assunto num cruzamento da grade"],
+  fundo:["Objetos sobrando e dobra da cartolina aparecendo","Cartolina curvada e bordas limpas"],
+  foco:["Clicar sem tocar na tela","Tocar no produto e ajustar a luz"],
+  retrato:["Desfoque no máximo e colado no assunto","Pouco desfoque, a 1–2 metros"],
+  formatos:["Foto deitada no feed","Foto em pé (4:5)"],
+  edicao:["Filtro forte que muda a cor do produto","Ajustes leves, na ordem certa"],
+  vendas:["Uma foto só, de longe","Frente, lado, detalhe, em uso e escala"],
+  carrossel:["Fotos soltas, sem ordem","Capa forte e chamada para comprar no fim"]
+};
+function errosHtml(id){const e=ERRO_AULA[id]; if(!e) return ""; return `<h2>Erro comum</h2><div class="cmp"><div class="card"><span class="tag bad">✕ Evite</span><p>${esc(e[0])}</p></div><div class="card"><span class="tag good">✓ Faça</span><p>${esc(e[1])}</p></div></div>`;}
+
+
 // ===== Estado =====
 let S = {user:null, perfil:null, acesso:null, hist:[], view:"loading", p:{}};
 let auth=null, db=null;
@@ -375,9 +527,11 @@ function lsGet(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 
 // ordem das situações conforme o objetivo
+function objetivos(){const p=S.perfil||{};return (p.objetivos&&p.objetivos.length)?p.objetivos:(p.objetivo?[p.objetivo]:[]);}
+function querVender(){const o=objetivos();return !o.length||o.some(x=>x==="vender"||x==="negocio");}
 function situacoesOrdenadas(){
-  const o = S.perfil && S.perfil.objetivo;
-  const primeiro = (o==="pessoal") ? "pessoal" : "vender";
+  const o = objetivos();
+  const primeiro = (o[0]==="pessoal") ? "pessoal" : "vender";
   return SITUACOES.filter(s=>s.grupo===primeiro).concat(SITUACOES.filter(s=>s.grupo!==primeiro));
 }
 function conteudoCompleto(){return !!(S.acesso && S.acesso.conteudoCompleto);}
@@ -430,9 +584,18 @@ function render(){
 
 const LOGO=`<div class="logo"><span>sh</span><span class="lens"></span><span>t</span><span class="light">certo</span></div>`;
 function topo(){
-  const ini=((S.perfil&&S.perfil.nome)||"?").trim().charAt(0).toUpperCase();
-  return `<div class="top"><div class="brand"><div class="mini-ico"></div>${LOGO}</div><button class="avatar" onclick="go('perfil')">${esc(ini)}</button></div>
+  return `<div class="top"><div class="brand"><div class="mini-ico"></div>${LOGO}</div><button class="avatar" onclick="go('perfil')">${avatarHtml()}</button></div>
   ${DEMO?`<div class="demo">Modo demonstração: os dados ficam só neste aparelho e a IA é simulada.</div>`:(IA_SIMULADA?`<div class="demo">Servidor da IA ainda não ligado: as análises são simuladas.</div>`:"")}`;
+}
+function avatarHtml(){const p=S.perfil||{};if(p.foto) return `<img src="${p.foto}" alt="">`;return esc(((p.nome)||"?").trim().charAt(0).toUpperCase());}
+function opcoesObjetivo(sel,acao){
+  const pago=conteudoCompleto();
+  return OBJETIVOS.map(o=>{const on=sel.includes(o.id);return `<button class="opt ${on?"on":""}" onclick="${acao}('${o.id}')"><span class="em">${o.emoji}</span><span><b>${o.nome}</b><br><span class="small">${o.desc}</span></span><span class="ck">✓</span></button>`;}).join("")+
+  (pago?`<p class="small center">Pode escolher mais de uma opção.</p>`:`<p class="small center">🔒 Com um plano, você pode escolher mais de uma opção.</p>`);
+}
+function escolherObj(lista,id){
+  if(!conteudoCompleto()) return [id];
+  return lista.includes(id)?(lista.length>1?lista.filter(x=>x!==id):lista):lista.concat(id);
 }
 function voltar(dest,label){return `<button class="back" onclick="go('${dest}')">‹ ${label||"Voltar"}</button>`;}
 
@@ -456,15 +619,16 @@ VIEWS.auth=()=>{
 };
 
 VIEWS.onboarding=()=>{
-  const st=S.p.passo||1, d=S.p.dados||{nome:(S.perfil&&S.perfil.nome)||"",objetivo:"",celular:""};
+  const st=S.p.passo||1, d=S.p.dados||{nome:(S.perfil&&S.perfil.nome)||"",objetivos:[],celular:""};
+  if(!d.objetivos) d.objetivos=d.objetivo?[d.objetivo]:[];
   S.p.dados=d;
   let corpo="";
   if(st===1) corpo=`<h1>Bem-vindo(a)! 👋</h1><p class="sub">O ShotCerto faz a sua foto ficar boa <b>e</b> ensina você a fazer sozinho(a).</p>
     <div class="field"><label>Como quer ser chamado(a)?</label><input id="oNome" value="${esc(d.nome)}" placeholder="Seu nome"></div>
     <button class="btn" onclick="obNext()">Continuar</button>`;
   if(st===2) corpo=`<h1>Para que você quer as fotos?</h1><p class="sub">Você pode mudar isso depois.</p>
-    ${OBJETIVOS.map(o=>`<button class="opt ${d.objetivo===o.id?"on":""}" onclick="S.p.dados.objetivo='${o.id}';render()"><span class="em">${o.emoji}</span><span><b>${o.nome}</b><br><span class="small">${o.desc}</span></span><span class="ck">✓</span></button>`).join("")}
-    <button class="btn" ${d.objetivo?"":"disabled"} onclick="obNext()">Continuar</button>`;
+    ${opcoesObjetivo(d.objetivos,"obObj")}
+    <button class="btn" ${d.objetivos.length?"":"disabled"} onclick="obNext()">Continuar</button>`;
   if(st===3) corpo=`<h1>Qual é o seu celular?</h1><p class="sub">Assim as dicas já vêm certinhas para o seu aparelho.</p>
     ${[["iphone","","iPhone","iOS"],["android","🤖","Android","Samsung, Motorola, Xiaomi…"]].map(([id,em,n,ds])=>`<button class="opt ${d.celular===id?"on":""}" onclick="S.p.dados.celular='${id}';render()"><span class="em">${em||"📱"}</span><span><b>${n}</b><br><span class="small">${ds}</span></span><span class="ck">✓</span></button>`).join("")}
     <button class="btn" ${d.celular?"":"disabled"} onclick="obFim()">Começar</button>`;
@@ -519,8 +683,10 @@ VIEWS.roteiro=()=>{
   const s=sit(S.p.id);
   if(!roteiroLiberado(s.id)) return `${voltar("roteiros","Roteiros")}${bloqueio("Conteúdo dos planos","Com qualquer plano você libera tudo.")}`;
   return `${voltar("roteiros","Roteiros")}<h1>${s.emoji} ${esc(s.nome)}</h1><p class="sub">Seu roteiro rápido</p>
+  ${(IL_SIT[s.id]||[]).slice(0,1).map(k=>IL.html(k)).join("")}
   ${s.passos.map((p,i)=>`<div class="step"><span class="n">${i+1}</span><div><h3>${p[0]}</h3><div>${esc(p[1])}</div></div></div>`).join("")}
   <div class="device"><b>Dica para ${celNome()}:</b> ${esc(cel()==="android"?s.android:s.iphone)}</div>
+  ${(IL_SIT[s.id]||[]).slice(1).map(k=>IL.html(k)).join("")}
   ${s.evite&&s.evite.length?`<div class="tip"><h3>Evite</h3>${s.evite.map(e=>`<div>• ${esc(e)}</div>`).join("")}</div>`:""}
   <button class="btn" style="margin-top:14px" onclick="tirarFoto('${s.id}',true)">📸 Abrir câmera</button>
   <button class="btn sec" onclick="go('analisar',{sit:'${s.id}'})">Já tirei, analisar</button>`;
@@ -534,6 +700,7 @@ VIEWS.analisar=()=>{
   return `${topo()}<h1>Analisar foto</h1><p class="sub">A IA dá uma nota, diz o que melhorar e já escreve a legenda.</p>
   <div class="field"><label>O que é a foto?</label><select onchange="S.p.sit=this.value">${situacoesOrdenadas().map(s=>`<option value="${s.id}" ${s.id===sid?"selected":""}>${s.emoji} ${s.nome}</option>`).join("")}</select></div>
   <div class="field"><label>Tom da legenda</label><div class="seg">${TONS.map(([id,n])=>`<button class="${tom===id?"on":""}" onclick="S.p.tom='${id}';render()">${n}</button>`).join("")}</div></div>
+  ${blocoInfo()}
   ${S.p.img?`<div class="photo"><img src="${S.p.img}" alt="Sua foto"></div>
     <button class="btn" onclick="analisar()" ${rest>0?"":"disabled"}>✨ Analisar com IA</button>
     <button class="btn sec" onclick="S.p.img=null;render()">Trocar foto</button>`:
@@ -544,6 +711,14 @@ VIEWS.analisar=()=>{
   ${rest<=0?`<div class="banner">Suas análises acabaram. ${S.acesso&&S.acesso.iaLimite>0?"O contador volta no dia 1 do próximo mês.":"Escolha um plano para continuar."} <button class="link" onclick="go('planos')">Ver planos</button></div>`:""}`;
 };
 
+function blocoInfo(){
+  const i=S.p.info=S.p.info||{};
+  const v=querVender();
+  return `<div class="card info"><h3>Conte sobre a foto <span class="small">(opcional)</span></h3><p class="small">Assim a legenda fala do que realmente está na foto.</p>
+  <input class="in" placeholder="${v?"O que é? Ex.: caneca de cerâmica azul":"O que é? Ex.: café no terraço com amigas"}" value="${esc(i.nome||"")}" oninput="S.p.info.nome=this.value">
+  ${v?`<input class="in" placeholder="Preço. Ex.: R$ 49,90" value="${esc(i.preco||"")}" oninput="S.p.info.preco=this.value">`:""}
+  <input class="in" placeholder="${v?"Um detalhe importante. Ex.: feita à mão, entrega grátis":"Um detalhe. Ex.: aniversário da Bia, em Lisboa"}" value="${esc(i.detalhe||"")}" oninput="S.p.info.detalhe=this.value"></div>`;
+}
 VIEWS.analisando=()=>`<div class="loading"><div><div class="spin"></div><h2 style="margin:0 0 6px">Analisando sua foto…</h2><p class="small">Olhando a luz, o fundo, o ângulo e escrevendo a legenda.</p></div></div>`;
 
 VIEWS.resultado=()=>{
@@ -565,7 +740,7 @@ VIEWS.resultado=()=>{
   <div class="grid2"><button class="btn" onclick="copiarLegenda()">Copiar</button><button class="btn darkb" id="bOutra" onclick="outraVersao()">Outra versão</button></div>
   <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:6px"><span class="small">Tom:</span>${TONS.map(([id,n])=>`<button class="chip ${tom===id?"on":""}" style="padding:6px 12px;font-size:13px" onclick="S.p.tom='${id}';render()">${n}</button>`).join("")}</div>
   <p class="small" style="margin-top:6px">Trocar o tom e tocar em "Outra versão" usa 1 análise.</p>
-  <button class="btn sec" style="margin-top:16px" onclick="go('analisar',{sit:'${S.p.sit||""}'})">📸 Tirar de novo e comparar</button>
+  <button class="btn sec" style="margin-top:16px" onclick="go('analisar',{sit:'${S.p.sit||""}',info:S.p.info})">📸 Tirar de novo e comparar</button>
   <p class="small center" style="margin-top:14px">A IA pode errar: use as dicas como sugestão.</p>`;
 };
 
@@ -585,7 +760,11 @@ VIEWS.aula=()=>{
   if(!aulaLiberada(a.id)) return `${voltar("aprender","Aprender")}${bloqueio("Esta é uma aula avançada","Com qualquer plano você libera as aulas avançadas e a análise com IA.")}`;
   const feitas=(S.perfil&&S.perfil.aulasFeitas)||[], ok=feitas.includes(a.id);
   return `${voltar("aprender","Aprender")}<span class="pill">${a.tema} · ${a.min} min</span><h1 style="margin-top:10px">${esc(a.titulo)}</h1>
+  ${INTRO_AULA[a.id]?`<p class="sub">${esc(INTRO_AULA[a.id])}</p>`:""}
+  ${(IL_AULA[a.id]||[]).filter(k=>k!=="eviteFaca").map(k=>IL.html(k)).join("")}
+  <h2>Passo a passo</h2>
   <div class="card lesson-body"><ul style="padding-left:20px;margin:0">${a.itens.map(i=>`<li>${esc(i)}</li>`).join("")}</ul></div>
+  ${(IL_AULA[a.id]||[]).includes("eviteFaca")?`<h2>Erro comum</h2>${IL.html("eviteFaca")}`:errosHtml(a.id)}
   <div class="device"><b>No seu ${celNome()}:</b> ${esc(cel()==="android"?a.android:a.iphone)}</div>
   <div class="challenge"><span class="pill">Desafio</span><p style="margin:10px 0 12px;font-weight:600">${esc(a.desafio)}</p>
   <button class="btn" onclick="go('roteiro',{id:'${a.sit}'})">Fazer o desafio</button></div>
@@ -598,19 +777,21 @@ VIEWS.perfil=()=>{
   const p=S.perfil||{}, a=S.acesso||{};
   const nomePlano={mensal:"Mensal",anual:"Anual",vitalicio:"Vitalício",admin:"Teste (administrador)"}[a.plano]||"Grátis";
   const dt=t=>t?new Date(t).toLocaleDateString("pt-BR"):"";
-  return `${topo()}<h1>Perfil</h1><p class="sub">${esc(S.user&&S.user.email||"")}</p>
+  return `${topo()}<h1>Perfil</h1>
+  <div class="row" style="gap:14px;margin:6px 0 16px"><div class="bigav">${avatarHtml()}</div><div><b style="font-size:18px">${esc(p.nome||"")}</b><div class="small">${esc(S.user&&S.user.email||"")}</div>
+   <div class="row" style="gap:12px;margin-top:6px"><button class="link" onclick="porFoto()">${p.foto?"Trocar foto":"Pôr foto"}</button>${p.foto?`<button class="link" style="color:var(--soft)" onclick="tirarFotoPerfil()">Remover</button>`:""}</div></div></div>
   ${verifBanner()}
   <div class="card"><div class="row between"><div><div class="small">Seu plano</div><b style="font-size:20px">${nomePlano}</b></div>${a.plano?`<span class="pill g">Ativo</span>`:`<span class="pill d">Grátis</span>`}</div>
    ${a.assinaturaAte&&(a.plano==="mensal"||a.plano==="anual")?`<p class="small" style="margin:8px 0 0">Garantido até ${dt(a.assinaturaAte)}</p>`:""}
-   ${a.plano==="vitalicio"?`<p class="small" style="margin:8px 0 0">Aulas e roteiros para sempre${a.iaAte?` · IA até ${dt(a.iaAte)}`:""}</p>`:""}
+   ${a.plano==="vitalicio"?`<p class="small" style="margin:8px 0 0">Aulas avançadas para sempre${a.iaAte?` · IA até ${dt(a.iaAte)}`:""}</p>`:""}
    <p class="small" style="margin:8px 0 10px">${textoUsos()}</p>
    <button class="btn ${a.plano?"sec":""}" onclick="go('planos')">${a.plano?"Ver planos":"Escolher um plano"}</button>
    <button class="btn sec" onclick="atualizarAcesso(true)">Já paguei — atualizar</button></div>
   <div class="card"><div class="field"><label>Nome</label><input id="pNome" value="${esc(p.nome||"")}"></div>
-   <div class="field"><label>Para que quer as fotos?</label><select id="pObj">${OBJETIVOS.map(o=>`<option value="${o.id}" ${p.objetivo===o.id?"selected":""}>${o.nome}</option>`).join("")}</select></div>
    <div class="field"><label>Seu celular</label><select id="pCel"><option value="iphone" ${cel()==="iphone"?"selected":""}>iPhone</option><option value="android" ${cel()==="android"?"selected":""}>Android</option></select></div>
    <button class="btn darkb" onclick="salvarPerfilForm()">Salvar</button></div>
-  <div class="card"><button class="row between" style="width:100%" onclick="go('historico')"><b>Histórico de análises</b><span class="small">${S.hist.length} ›</span></button></div>
+  <h2>Para que quer as fotos?</h2>${opcoesObjetivo(objetivos(),"perfilObj")}
+  <div class="card" style="margin-top:12px"><button class="row between" style="width:100%" onclick="go('historico')"><b>Histórico de análises</b><span class="small">${S.hist.length} ›</span></button></div>
   <div class="card"><button class="row between" style="width:100%" onclick="go('regras')"><b>Regras dos planos</b><span class="small">›</span></button></div>
   ${C.suporteWhatsapp?`<div class="card"><a class="row between" style="color:inherit;text-decoration:none" href="https://wa.me/${esc(C.suporteWhatsapp)}" target="_blank" rel="noopener"><b>Falar com o suporte</b><span class="small">WhatsApp ›</span></a></div>`:""}
   ${DEMO?`<div class="card"><div class="field"><label>Simular plano (só no modo demonstração)</label><select onchange="demoPlano(this.value)">${[["","Grátis"],["mensal","Mensal"],["anual","Anual"],["vitalicio","Vitalício"]].map(([v,n])=>`<option value="${v}" ${(lsGet("sc_demo_plano","")===v)?"selected":""}>${n}</option>`).join("")}</select></div></div>`:""}
@@ -662,13 +843,21 @@ function obNext(){
 }
 async function obFim(){
   const d=S.p.dados;
-  S.perfil=Object.assign({},S.perfil||{},{nome:d.nome,objetivo:d.objetivo,celular:d.celular,aulasFeitas:(S.perfil&&S.perfil.aulasFeitas)||[],criadoEm:Date.now()});
+  S.perfil=Object.assign({},S.perfil||{},{nome:d.nome,objetivo:d.objetivos[0],objetivos:d.objetivos,celular:d.celular,aulasFeitas:(S.perfil&&S.perfil.aulasFeitas)||[],criadoEm:Date.now()});
   await salvarPerfil();
   go("home");toast(`Tudo pronto, ${d.nome.split(" ")[0]}!`);
 }
+function obObj(id){S.p.dados.objetivos=escolherObj(S.p.dados.objetivos,id);render();}
+async function perfilObj(id){const l=escolherObj(objetivos(),id);S.perfil.objetivos=l;S.perfil.objetivo=l[0];await salvarPerfil();render();}
+function porFoto(){
+  const inp=$("#filePick");inp.value="";
+  _fotoCb=async(file)=>{try{S.perfil.foto=await miniatura(await lerImagem(file,600),240);await salvarPerfil();render();toast("Foto atualizada!");}catch(e){toast("Não consegui usar essa foto");}};
+  inp.click();
+}
+async function tirarFotoPerfil(){S.perfil.foto="";await salvarPerfil();render();}
 async function salvarPerfilForm(){
   S.perfil.nome=($("#pNome").value||"").trim()||S.perfil.nome;
-  S.perfil.objetivo=$("#pObj").value;S.perfil.celular=$("#pCel").value;
+  S.perfil.celular=$("#pCel").value;
   await salvarPerfil();toast("Salvo!");render();
 }
 async function marcarAula(id){
@@ -688,7 +877,7 @@ function tirarFoto(sitId,camera){
     try{
       const img=await lerImagem(file,1280);
       const tom=S.p.tom;
-      go("analisar",{sit:sitId||S.p.sit,img,tom});
+      go("analisar",{sit:sitId||S.p.sit,img,tom,info:S.p.info});
     }catch(e){toast("Não consegui abrir essa foto. Tente outra.");}
   };
   inp.click();
@@ -711,18 +900,18 @@ function miniatura(dataUrl,max=320){
 
 async function analisar(){
   if(usosRestantes()<=0){go("planos");return;}
-  const sid=S.p.sit, img=S.p.img, tom=S.p.tom||"simpatico";
+  const sid=S.p.sit, img=S.p.img, tom=S.p.tom||"simpatico", info=Object.assign({},S.p.info||{});
   go("analisando");
   try{
-    const corpo={imagem:img.split(",")[1],situacao:sit(sid).nome,objetivo:(S.perfil&&S.perfil.objetivo)||"vender",celular:cel(),tom,nome:(S.perfil&&S.perfil.nome)||""};
+    const corpo={imagem:img.split(",")[1],situacao:sit(sid).nome,objetivo:objetivos().join(",")||"vender",celular:cel(),tom,produto:info.nome||"",preco:info.preco||"",detalhe:info.detalhe||""};
     const res=IA_SIMULADA?await iaDemo(corpo,sid):await api("/analisar",corpo);
     const thumb=await miniatura(img);
     const item={sit:sid,res,thumb,data:Date.now(),tom};
     await guardarHist(item);
     await atualizarAcesso();
-    S.view="resultado";S.p={res,img,thumb,sit:sid,tom,plat:"instagram"};render();window.scrollTo(0,0);
+    S.view="resultado";S.p={res,img,thumb,sit:sid,tom,plat:"instagram",info};render();window.scrollTo(0,0);
   }catch(e){
-    go("analisar",{sit:sid,img,tom});
+    go("analisar",{sit:sid,img,tom,info});
     if(e.codigo==="sem_creditos"){toast("Suas análises acabaram");go("planos");}
     else if(e.codigo==="verificar"){toast("Confirme o seu email primeiro");}
     else toast(e.message||"Não foi possível analisar agora. Tente de novo.");
@@ -749,7 +938,8 @@ async function outraVersao(){
   const b=$("#bOutra"); if(b){b.disabled=true;b.textContent="Escrevendo…";}
   try{
     const r=S.p.res;
-    const corpo={descricao:r.descricao||r.resumo||"",situacao:sit(S.p.sit).nome,objetivo:(S.perfil&&S.perfil.objetivo)||"vender",tom:S.p.tom||"simpatico",anterior:r.legendas&&r.legendas.instagram||""};
+    const info=S.p.info||{};
+    const corpo={descricao:r.descricao||r.resumo||"",situacao:sit(S.p.sit).nome,objetivo:objetivos().join(",")||"vender",tom:S.p.tom||"simpatico",anterior:r.legendas&&r.legendas.instagram||"",produto:info.nome||"",preco:info.preco||"",detalhe:info.detalhe||""};
     const novo=IA_SIMULADA?await legendaDemo(corpo,S.p.sit):await api("/legenda",corpo);
     r.legendas=novo.legendas||r.legendas; if(novo.hashtags) r.hashtags=novo.hashtags;
     await atualizarAcesso();
@@ -823,8 +1013,9 @@ function gastarDemo(){
 }
 function demoPlano(v){lsSet("sc_demo_plano",v);S.acesso=acessoDemo();render();toast(v?"Plano simulado: "+v:"Voltou ao grátis");}
 const espera=ms=>new Promise(r=>setTimeout(r,ms));
-function legendasModelo(s,tom,obj,v){
-  const vender=obj!=="pessoal";
+function legendasModelo(s,tom,obj,v,c){
+  c=c||{};
+  const vender=/vender|negocio/.test(obj||"vender")||!obj;
   const base={
     produto:["Feito para durar e para encantar.","Detalhes que fazem a diferença no seu dia."],
     roupa:["A peça que faltava no seu guarda-roupa.","Conforto e estilo na mesma peça."],
@@ -839,12 +1030,14 @@ function legendasModelo(s,tom,obj,v){
     restaurante:["Hoje a comida falou mais alto.","Cada garfada valeu a pena."],
     pet:["O dono(a) da casa, oficialmente.","Amor de quatro patas."]
   }[s.id]||["Uma foto que diz tudo."];
-  const frase=base[v%base.length];
+  let frase=base[v%base.length];
+  const nome=(c.produto||"").trim(), preco=(c.preco||"").trim(), det=(c.detalhe||"").trim();
+  if(nome) frase=vender?`${nome.charAt(0).toUpperCase()+nome.slice(1)}: ${frase.charAt(0).toLowerCase()+frase.slice(1)}`:`${nome.charAt(0).toUpperCase()+nome.slice(1)}. ${frase}`;
   const cta=vender?{simpatico:"Chama no direct que eu te explico tudinho! 💬",profissional:"Pedidos e informações pelo direct ou WhatsApp.",urgente:"Últimas unidades! Garanta a sua agora no direct. ⏳"}[tom]:{simpatico:"E aí, o que acharam? 💛",profissional:"",urgente:"Corre que esse momento já passou! 😄"}[tom];
   return {
     legendas:{
-      instagram:`${frase}\n\n${vender?"✨ Qualidade que dá para ver na foto\n📦 Pronta entrega\n":""}${cta}`.trim(),
-      whatsapp:vender?`${frase} Valor: [seu preço]. ${tom==="urgente"?"Poucas unidades!":"Quer que eu separe para você?"}`:`${frase}`,
+      instagram:`${frase}\n\n${vender?`${det?`✨ ${det}\n`:"✨ Qualidade que dá para ver na foto\n"}${preco?`💰 ${preco}\n`:""}`:(det?`📍 ${det}\n`:"")}${cta}`.trim(),
+      whatsapp:vender?`${frase}${det?" "+det.charAt(0).toUpperCase()+det.slice(1)+".":""} Valor: ${preco||"[seu preço]"}. ${tom==="urgente"?"Poucas unidades!":"Quer que eu separe para você?"}`:`${frase}`,
       stories:vender?`${frase.split(".")[0]} ✨\nResponda este story para comprar 👇`:`${frase.split(".")[0]} ✨`
     },
     hashtags:vender?["#"+s.id,"#lojaonline","#feitoamao","#compreempequenosnegocios"]:["#"+s.id,"#momentos","#fotodecelular"]
@@ -856,9 +1049,9 @@ async function iaDemo(corpo,sid){
   const nota=Math.round((6+r*3)*10)/10;
   const v=()=>Math.round(55+Math.random()*40);
   const dicas=[{tipo:"melhorar",titulo:s.passos[1][0]+": dá para melhorar",texto:s.passos[1][1]},{tipo:"melhorar",titulo:s.passos[2][0],texto:s.passos[2][1]},{tipo:"bom",titulo:"Ponto forte",texto:"A foto tem boa nitidez. Mantenha o celular firme assim."}];
-  return Object.assign({nota,resumo:"(Simulação) Boa base! Com dois ajustes simples, esta foto fica pronta para postar.",descricao:s.nome,barras:{luz:v(),fundo:v(),angulo:v(),nitidez:v(),composicao:v()},dicas,dica_celular:corpo.celular==="android"?s.android:s.iphone},legendasModelo(s,corpo.tom,corpo.objetivo,0));
+  return Object.assign({nota,resumo:"(Simulação) Boa base! Com dois ajustes simples, esta foto fica pronta para postar.",descricao:s.nome,barras:{luz:v(),fundo:v(),angulo:v(),nitidez:v(),composicao:v()},dicas,dica_celular:corpo.celular==="android"?s.android:s.iphone},legendasModelo(s,corpo.tom,corpo.objetivo,0,corpo));
 }
-async function legendaDemo(corpo,sid){await espera(900);gastarDemo();return legendasModelo(sit(sid),corpo.tom,corpo.objetivo,1+Math.floor(Math.random()*3));}
+async function legendaDemo(corpo,sid){await espera(900);gastarDemo();return legendasModelo(sit(sid),corpo.tom,corpo.objetivo,1+Math.floor(Math.random()*3),corpo);}
 
 // ===== Conta =====
 async function fazerAuth(criar){
@@ -896,7 +1089,7 @@ async function iniciarSessao(){
     try{const d=await db.collection("users").doc(S.user.uid).get();S.perfil=d.exists?d.data():(S.perfil||{nome:S._nomeNovo||""});}catch(e){S.perfil=S.perfil||{};}
   }
   await Promise.all([carregarHist(),atualizarAcesso()]);
-  if(!S.perfil||!S.perfil.objetivo||!S.perfil.celular){S.view="onboarding";S.p={passo:S.perfil&&S.perfil.nome?2:1,dados:{nome:(S.perfil&&S.perfil.nome)||"",objetivo:"",celular:""}};render();return;}
+  if(!S.perfil||!objetivos().length||!S.perfil.celular){S.view="onboarding";S.p={passo:S.perfil&&S.perfil.nome?2:1,dados:{nome:(S.perfil&&S.perfil.nome)||"",objetivos:[],celular:""}};render();return;}
   go("home");
 }
 function carregarScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}

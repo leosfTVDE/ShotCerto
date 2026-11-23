@@ -1,5 +1,5 @@
 // ShotCerto — service worker (funciona offline e atualiza sozinho)
-const CACHE = "shotcerto-v1.1.0";
+const CACHE = "shotcerto-v1.2.0";
 const ARQUIVOS = ["./", "index.html", "config.js", "manifest.json", "icon-192.png", "icon-512.png", "icon-180.png"];
 
 self.addEventListener("install", e => {

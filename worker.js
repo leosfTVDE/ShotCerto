@@ -14,7 +14,7 @@
 //                          (sem isto, o plano é descoberto pelo nome do produto: "Mensal", "Anual", "Vitalício")
 //   MODELO              -> modelo da IA (padrão: claude-haiku-5-5)
 
-const LIMITES = { teste: 3, mensal: 30, anual: 30, vitalicio: 10, admin: 500 };
+const LIMITES = { teste: 2, mensal: 30, anual: 30, vitalicio: 10, admin: 500 };
 const DIA = 86400000;
 
 export default {
@@ -137,9 +137,19 @@ async function chamarIA(env, conteudo, maxTokens) {
 }
 const TOM = { simpatico: "simpático e próximo, com emojis na medida", profissional: "profissional e elegante, poucos emojis", urgente: "com senso de urgência (últimas unidades, aproveite), sem exagero" };
 const OBJ = { vender: "vender produtos pelo Instagram e WhatsApp", pessoal: "postar no Instagram pessoal", negocio: "divulgar um negócio local", outro: "fotografar melhor" };
-const formatoLegendas = (objetivo) => `"legendas": {
-  "instagram": "legenda para o feed, 3 a 6 linhas curtas${objetivo === "vender" || objetivo === "negocio" ? ", com chamada para comprar ou chamar no direct" : ""}",
-  "whatsapp": "mensagem curta para status ou catálogo do WhatsApp${objetivo === "vender" ? ", com [preço] para a pessoa preencher" : ""}",
+const objTexto = o => String(o || "vender").split(",").map(x => OBJ[x.trim()]).filter(Boolean).join(" e ") || OBJ.vender;
+const vende = o => /vender|negocio/.test(String(o || "vender"));
+function infoPessoa(b) {
+  const l = [];
+  if (b.produto) l.push("O que é: " + String(b.produto).slice(0, 120));
+  if (b.preco) l.push("Preço: " + String(b.preco).slice(0, 40));
+  if (b.detalhe) l.push("Detalhe importante: " + String(b.detalhe).slice(0, 160));
+  return l.length ? "Informações dadas pela pessoa (use-as nas legendas, sem inventar outras):\n" + l.join("\n") : "A pessoa não deu informações extra: descreva só o que se vê.";
+}
+const REGRA_LEGENDA = `As legendas TÊM de falar desta foto em concreto: cite 1 ou 2 detalhes visíveis (cor, material, textura, cenário, luz, como está servido ou arrumado). Nada de frases genéricas que serviriam para qualquer foto.`;
+const formatoLegendas = (objetivo, preco) => `"legendas": {
+  "instagram": "legenda para o feed, 3 a 6 linhas curtas${vende(objetivo) ? ", com chamada para comprar ou chamar no direct" : ""}",
+  "whatsapp": "mensagem curta para status ou catálogo do WhatsApp${vende(objetivo) ? (preco ? ", com o preço " + preco : ", com [preço] para a pessoa preencher") : ""}",
   "stories": "texto de 1 ou 2 linhas para pôr em cima da foto nos Stories"
 },
 "hashtags": ["4 a 6 hashtags relevantes em português, sem espaços"]`;
@@ -151,18 +161,20 @@ async function analisar(req, user, env) {
   if (uso instanceof Error) return json({ erro: uso.message, codigo: uso.codigo }, 402);
   const celular = b.celular === "android" ? "Android" : "iPhone";
   const pedido = `Analise esta foto.
-Contexto: a pessoa quer ${OBJ[b.objetivo] || OBJ.vender}. A foto é de: ${b.situacao || "produto"}. O celular dela é ${celular}.
+Contexto: a pessoa quer ${objTexto(b.objetivo)}. A foto é de: ${b.situacao || "produto"}. O celular dela é ${celular}.
 Tom das legendas: ${TOM[b.tom] || TOM.simpatico}.
+${infoPessoa(b)}
+${REGRA_LEGENDA}
 
 Devolva exatamente este JSON:
 {
 "nota": número de 0 a 10 com uma casa decimal (seja justo: foto comum de celular costuma ficar entre 5 e 7),
 "resumo": "1 frase curta sobre a foto, começando pelo ponto forte",
-"descricao": "descrição objetiva do que aparece na foto (para escrever legendas depois)",
+"descricao": "descrição objetiva e detalhada do que aparece na foto: objeto, cores, material, cenário (para escrever legendas depois)",
 "barras": {"luz": 0-100, "fundo": 0-100, "angulo": 0-100, "nitidez": 0-100, "composicao": 0-100},
 "dicas": [ 3 ou 4 itens {"tipo": "melhorar" ou "bom", "titulo": "até 6 palavras", "texto": "o que fazer, concreto e prático, até 2 frases"}; pelo menos 1 "bom" e as dicas de "melhorar" primeiro, da mais importante para a menos ],
 "dica_celular": "1 dica prática específica para a câmera ou a edição do ${celular} que ajude nesta foto",
-${formatoLegendas(b.objetivo)}
+${formatoLegendas(b.objetivo, b.preco)}
 }
 Não invente marcas, preços nem características que não dá para ver na foto.`;
   const conteudo = [
@@ -179,12 +191,14 @@ async function legenda(req, user, env) {
   const uso = await podeUsar(user, env).catch(e => e);
   if (uso instanceof Error) return json({ erro: uso.message, codigo: uso.codigo }, 402);
   const pedido = `Escreva NOVAS legendas (diferentes da anterior) para esta foto.
-Foto: ${b.descricao || b.situacao}. Tipo: ${b.situacao}. Objetivo: ${OBJ[b.objetivo] || OBJ.vender}.
+Foto: ${b.descricao || b.situacao}. Tipo: ${b.situacao}. Objetivo: ${objTexto(b.objetivo)}.
 Tom: ${TOM[b.tom] || TOM.simpatico}.
+${infoPessoa(b)}
+${REGRA_LEGENDA}
 Legenda anterior (não repita): ${String(b.anterior || "").slice(0, 600)}
 Devolva exatamente este JSON:
 {
-${formatoLegendas(b.objetivo)}
+${formatoLegendas(b.objetivo, b.preco)}
 }`;
   const res = await chamarIA(env, [{ type: "text", text: pedido }], 700);
   await gastar(user, env, uso);
