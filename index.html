@@ -175,7 +175,7 @@ p{margin:0 0 10px}
 <script src="config.js"></script>
 <script>
 "use strict";
-const VERSAO = "1.0.0";
+const VERSAO = "1.1.0";
 const C = window.SC_CONFIG || {};
 const DEMO = !C.firebase;          // sem Firebase = modo demonstração
 const IA_SIMULADA = !C.workerUrl;  // sem servidor = IA simulada
@@ -183,8 +183,6 @@ const IA_SIMULADA = !C.workerUrl;  // sem servidor = IA simulada
 // ===== Regras dos planos (iguais às do servidor) =====
 const REGRAS = {
   testeAnalises: 3,   // análises grátis para experimentar
-  aulasGratis: 2,     // aulas liberadas sem plano
-  roteirosGratis: 3,  // roteiros liberados sem plano
   mensal: 30, anual: 30, vitalicio: 10
 };
 
@@ -342,12 +340,12 @@ const AULAS = [
    iphone:"App Fotos > Editar > Ajustar (Exposição, Contraste, Calor, Nitidez) e Filtros.",
    android:"Galeria ou Google Fotos > Editar > Ajustar (o nome das opções muda um pouco conforme a marca).",
    desafio:"Edite uma foto seguindo a ordem certa e analise antes e depois."},
-  {id:"vendas",tema:"Vendas",titulo:"Fotos de produto que vendem",min:3,sit:"produto",
+  {id:"vendas",premium:true,tema:"Vendas",titulo:"Fotos de produto que vendem",min:3,sit:"produto",
    itens:["O cliente não pode tocar no produto: as fotos fazem esse papel.","Sequência mínima: frente, lado ou costas, detalhe, em uso e escala (ao lado de algo conhecido).","Mesma luz e mesmo fundo em todos os produtos: o perfil fica com cara de loja.","A primeira foto é a capa: produto inteiro e fundo limpo.","Na legenda: o que é, para quem é, preço (ou \"chame no direct\") e como comprar."],
    iphone:"Crie um álbum no app Fotos para cada produto e guarde ali a sequência completa.",
    android:"Crie um álbum na galeria para cada produto e guarde ali a sequência completa.",
    desafio:"Faça a sequência completa de um produto e analise a foto da capa."},
-  {id:"carrossel",tema:"Vendas",titulo:"Carrossel que prende a atenção",min:2,sit:"produto",
+  {id:"carrossel",premium:true,tema:"Vendas",titulo:"Carrossel que prende a atenção",min:2,sit:"produto",
    itens:["Um carrossel do Instagram aceita várias fotos num só post. De 4 a 6 costuma bastar.","Ordem: capa forte → detalhes → em uso → informação (preço, medidas) → chamada para ação.","Mesmo estilo de cor em todas as fotos.","A primeira foto decide se a pessoa desliza."],
    iphone:"Selecione as fotos na ordem certa no app Fotos antes de compartilhar.",
    android:"Selecione as fotos na ordem certa na galeria antes de compartilhar.",
@@ -383,13 +381,15 @@ function situacoesOrdenadas(){
   return SITUACOES.filter(s=>s.grupo===primeiro).concat(SITUACOES.filter(s=>s.grupo!==primeiro));
 }
 function conteudoCompleto(){return !!(S.acesso && S.acesso.conteudoCompleto);}
-function roteiroLiberado(id){
-  if(conteudoCompleto()) return true;
-  return situacoesOrdenadas().slice(0,REGRAS.roteirosGratis).some(s=>s.id===id);
-}
+// Roteiros: todos grátis. Aulas: grátis, menos as marcadas como "premium" (avançadas).
+function roteiroLiberado(id){return true;}
 function aulaLiberada(id){
   if(conteudoCompleto()) return true;
-  return AULAS.slice(0,REGRAS.aulasGratis).some(a=>a.id===id);
+  const a=aula(id); return !(a&&a.premium);
+}
+function eAdminLocal(){
+  const e=(S.user&&S.user.email||"").toLowerCase().trim();
+  return (C.admins||[]).map(x=>String(x).toLowerCase().trim()).includes(e);
 }
 function usosRestantes(){
   const a=S.acesso||{};
@@ -399,7 +399,7 @@ function usosRestantes(){
 }
 function textoUsos(){
   const a=S.acesso||{};
-  if(a.admin) return "Acesso de teste ilimitado";
+  if(a.admin) return IA_SIMULADA?"Acesso total (administrador) · IA simulada":"Acesso total (administrador)";
   if(a.iaLimite>0) return `${a.iaUsadas||0} de ${a.iaLimite} análises usadas este mês`;
   return `${a.testeRestante||0} de ${REGRAS.testeAnalises} análises grátis restantes`;
 }
@@ -496,7 +496,7 @@ VIEWS.home=()=>{
 function cartaoAula(a){
   const feitas=(S.perfil&&S.perfil.aulasFeitas)||[];
   const i=AULAS.indexOf(a)+1, ok=feitas.includes(a.id), lib=aulaLiberada(a.id);
-  return `<button class="lesson" onclick="go('aula',{id:'${a.id}'})"><span class="num ${ok?"done":""}">${ok?"✓":i}</span><span class="grow"><b>${esc(a.titulo)}</b><span class="small">${a.tema} · ${a.min} min ${a.iphone&&cel()==="iphone"?"· dica para iPhone":"· dica para Android"}</span></span>${lib?"":"🔒"}</button>`;
+  return `<button class="lesson" onclick="go('aula',{id:'${a.id}'})"><span class="num ${ok?"done":""}">${ok?"✓":i}</span><span class="grow"><b>${esc(a.titulo)}</b><span class="small">${a.tema} · ${a.min} min · dica para ${celNome()}${a.premium?" · avançada":""}</span></span>${lib?"":"🔒"}</button>`;
 }
 
 VIEWS.roteiros=()=>{
@@ -517,7 +517,7 @@ VIEWS.situacao=()=>{
 
 VIEWS.roteiro=()=>{
   const s=sit(S.p.id);
-  if(!roteiroLiberado(s.id)) return `${voltar("roteiros","Roteiros")}${bloqueio("Este roteiro faz parte dos planos","Com qualquer plano você libera todos os roteiros e aulas.")}`;
+  if(!roteiroLiberado(s.id)) return `${voltar("roteiros","Roteiros")}${bloqueio("Conteúdo dos planos","Com qualquer plano você libera tudo.")}`;
   return `${voltar("roteiros","Roteiros")}<h1>${s.emoji} ${esc(s.nome)}</h1><p class="sub">Seu roteiro rápido</p>
   ${s.passos.map((p,i)=>`<div class="step"><span class="n">${i+1}</span><div><h3>${p[0]}</h3><div>${esc(p[1])}</div></div></div>`).join("")}
   <div class="device"><b>Dica para ${celNome()}:</b> ${esc(cel()==="android"?s.android:s.iphone)}</div>
@@ -582,7 +582,7 @@ VIEWS.aprender=()=>{
 
 VIEWS.aula=()=>{
   const a=aula(S.p.id); if(!a) return VIEWS.aprender();
-  if(!aulaLiberada(a.id)) return `${voltar("aprender","Aprender")}${bloqueio("Esta aula faz parte dos planos","Com qualquer plano você libera todas as aulas e roteiros.")}`;
+  if(!aulaLiberada(a.id)) return `${voltar("aprender","Aprender")}${bloqueio("Esta é uma aula avançada","Com qualquer plano você libera as aulas avançadas e a análise com IA.")}`;
   const feitas=(S.perfil&&S.perfil.aulasFeitas)||[], ok=feitas.includes(a.id);
   return `${voltar("aprender","Aprender")}<span class="pill">${a.tema} · ${a.min} min</span><h1 style="margin-top:10px">${esc(a.titulo)}</h1>
   <div class="card lesson-body"><ul style="padding-left:20px;margin:0">${a.itens.map(i=>`<li>${esc(i)}</li>`).join("")}</ul></div>
@@ -627,21 +627,21 @@ VIEWS.planos=()=>{
    <div class="row between"><b style="font-size:18px">${nome}</b></div><div class="price">${esc(preco||"")}<span class="small" style="font-weight:600"> ${extra}</span></div>
    <ul>${itens.map(i=>`<li>${i}</li>`).join("")}</ul>
    <button class="btn ${best?"":"sec"}" onclick="comprar('${id}')">Quero o ${nome}</button></div>`;
-  return `${voltar("perfil","Perfil")}<h1>Escolha seu plano</h1><p class="sub">Fotos que vendem, sem complicação.</p>
+  return `${voltar("perfil","Perfil")}<h1>Escolha seu plano</h1><p class="sub">Os roteiros e a maioria das aulas são grátis. Os planos liberam a IA e as aulas avançadas.</p>
   ${verifBanner()}
-  ${plano("mensal","Mensal",pr.mensal,"/mês",[`${REGRAS.mensal} análises de IA por mês`,"Legendas prontas para Instagram, WhatsApp e Stories","Todas as aulas e roteiros","Garantido enquanto o mês estiver pago"],false)}
+  ${plano("mensal","Mensal",pr.mensal,"/mês",[`${REGRAS.mensal} análises de IA por mês`,"Legendas prontas para Instagram, WhatsApp e Stories","Aulas avançadas de vendas","Garantido enquanto o mês estiver pago"],false)}
   ${plano("anual","Anual",pr.anual,"/ano",["Tudo do plano Mensal",`${REGRAS.anual} análises de IA por mês`,"Garantido por 12 meses","Paga uma vez por ano"],true)}
-  ${plano("vitalicio","Vitalício",pr.vitalicio,"pagamento único",["Aulas e roteiros para sempre",`${REGRAS.vitalicio} análises de IA por mês durante 12 meses`,"Depois de 12 meses, a IA fica disponível com o Mensal ou o Anual"],false)}
+  ${plano("vitalicio","Vitalício",pr.vitalicio,"pagamento único",["Aulas avançadas liberadas para sempre",`${REGRAS.vitalicio} análises de IA por mês durante 12 meses`,"Depois de 12 meses, a IA fica disponível com o Mensal ou o Anual"],false)}
   <div class="banner">Pague com <b>o mesmo email</b> da sua conta (${esc(S.user&&S.user.email||"")}). O plano ativa sozinho em alguns minutos.</div>
   <p class="center"><button class="link" onclick="go('regras')">Veja exatamente o que está incluído</button></p>
   <p class="small center">Pagamento por Pix, cartão ou boleto, pela plataforma de pagamento.</p>`;
 };
 
 VIEWS.regras=()=>`${voltar(S.p.de||"perfil","Voltar")}<h1>Regras dos planos</h1><p class="sub">Tudo claro antes de comprar.</p>
-  <div class="card"><h3>Grátis</h3><p class="small" style="color:var(--ink)">${REGRAS.testeAnalises} análises de IA para experimentar, ${REGRAS.aulasGratis} aulas e ${REGRAS.roteirosGratis} roteiros.</p></div>
-  <div class="card"><h3>Mensal</h3><p class="small" style="color:var(--ink)">Cada mês pago fica garantido por 30 dias a partir do pagamento. Se a mensalidade seguinte não for paga, o acesso pago termina ao fim do período já pago. Inclui ${REGRAS.mensal} análises de IA por mês, todas as aulas e roteiros.</p></div>
-  <div class="card"><h3>Anual</h3><p class="small" style="color:var(--ink)">Garantido por 12 meses a partir do pagamento. Inclui ${REGRAS.anual} análises de IA por mês, todas as aulas e roteiros. Se não renovar, o acesso pago termina ao fim dos 12 meses.</p></div>
-  <div class="card"><h3>Vitalício</h3><p class="small" style="color:var(--ink)">Pagamento único. As aulas, os roteiros e as dicas ficam liberados para sempre neste app, mesmo que a IA deixe de ser oferecida. Inclui ${REGRAS.vitalicio} análises de IA por mês durante 12 meses a partir da compra; depois disso, a IA só está disponível com o plano Mensal ou Anual.</p></div>
+  <div class="card"><h3>Grátis</h3><p class="small" style="color:var(--ink)">Todos os roteiros e todas as aulas básicas, para sempre. Mais ${REGRAS.testeAnalises} análises de IA para experimentar.</p></div>
+  <div class="card"><h3>Mensal</h3><p class="small" style="color:var(--ink)">Cada mês pago fica garantido por 30 dias a partir do pagamento. Se a mensalidade seguinte não for paga, o acesso pago termina ao fim do período já pago. Inclui ${REGRAS.mensal} análises de IA por mês e as aulas avançadas.</p></div>
+  <div class="card"><h3>Anual</h3><p class="small" style="color:var(--ink)">Garantido por 12 meses a partir do pagamento. Inclui ${REGRAS.anual} análises de IA por mês e as aulas avançadas. Se não renovar, o acesso pago termina ao fim dos 12 meses.</p></div>
+  <div class="card"><h3>Vitalício</h3><p class="small" style="color:var(--ink)">Pagamento único. As aulas avançadas ficam liberadas para sempre neste app, mesmo que a IA deixe de ser oferecida. Inclui ${REGRAS.vitalicio} análises de IA por mês durante 12 meses a partir da compra; depois disso, a IA só está disponível com o plano Mensal ou Anual.</p></div>
   <div class="card"><h3>Importante</h3><ul class="small" style="color:var(--ink);padding-left:18px;margin:0">
    <li>O contador de análises volta a zero no dia 1 de cada mês. Análises não usadas não acumulam.</li>
    <li>Trocar o tom ou pedir outra versão da legenda usa 1 análise.</li>
@@ -805,6 +805,7 @@ async function api(path,body){
 
 // ===== Modo demonstração =====
 function acessoDemo(){
+  if(eAdminLocal()) return {plano:"admin",admin:true,conteudoCompleto:true,iaLimite:999,iaUsadas:0,iaRestante:999,testeRestante:REGRAS.testeAnalises,verificado:true};
   const plano=lsGet("sc_demo_plano","")||null;
   const usos=lsGet("sc_demo_usos",{});
   const mes=new Date().toISOString().slice(0,7);
@@ -813,6 +814,7 @@ function acessoDemo(){
   return {plano,conteudoCompleto:!!plano,iaLimite:lim,iaUsadas:usadas,iaRestante:Math.max(0,lim-usadas),testeRestante:Math.max(0,REGRAS.testeAnalises-teste),assinaturaAte:plano&&plano!=="vitalicio"?Date.now()+(plano==="anual"?365:30)*864e5:null,iaAte:plano==="vitalicio"?Date.now()+365*864e5:null,verificado:true,admin:false};
 }
 function gastarDemo(){
+  if(eAdminLocal()) return;
   const a=acessoDemo(), usos=lsGet("sc_demo_usos",{}), mes=new Date().toISOString().slice(0,7);
   if(a.iaLimite>0&&a.iaRestante>0) usos[mes]=(usos[mes]||0)+1;
   else if(a.testeRestante>0) usos.teste=(usos.teste||0)+1;
@@ -863,6 +865,7 @@ async function fazerAuth(criar){
   const email=($("#fEmail").value||"").trim(), senha=$("#fSenha").value||"", nome=criar?($("#fNome").value||"").trim():"";
   if(criar&&!nome){toast("Escreva o seu nome");return;}
   if(!email||!senha){toast("Preencha email e senha");return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){toast("Esse email não parece certo. Confira.");return;}
   const b=$("#bAuth");b.disabled=true;
   if(DEMO){S.user={uid:"demo",email,emailVerified:true};lsSet("sc_user",S.user);S.perfil=lsGet("sc_perfil",null)||{nome};await iniciarSessao();return;}
   try{

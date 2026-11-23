@@ -28,6 +28,9 @@ window.SC_CONFIG = {
     vitalicio: "R$ 67"
   },
 
-  // 5) WhatsApp de suporte (só números, com DDI), ex.: "351969698927". Vazio = esconde o botão.
+  // 5) Emails com acesso total (você e quem vai testar). Separe por vírgulas.
+  admins: ["leonardospinasse@gmail.com"],
+
+  // 6) WhatsApp de suporte (só números, com DDI), ex.: "351969698927". Vazio = esconde o botão.
   suporteWhatsapp: ""
 };
