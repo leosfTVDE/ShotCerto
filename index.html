@@ -1,0 +1,924 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ShotCerto</title>
+<meta name="description" content="Fotos que vendem, feitas com o seu celular.">
+<meta name="theme-color" content="#FAF7F2">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ShotCerto">
+<style>
+:root{
+  --coral:#FF5E3A;--pink:#FF3D7F;--gold:#F5B700;--ink:#1C1C24;--soft:#76747F;--line:#ECE7DF;
+  --bg:#FAF7F2;--card:#FFFFFF;--green:#1FA56A;--greenbg:#E6F6EE;--coralbg:#FFEDE7;--dark:#1E1E28;
+  --r:22px;--shadow:0 6px 20px rgba(28,28,36,.06);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.45}
+body{padding-bottom:calc(86px + env(safe-area-inset-bottom))}
+body.semtabs{padding-bottom:24px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,select,textarea{font:inherit;color:var(--ink)}
+#app{max-width:560px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 18px 24px}
+h1{font-size:30px;line-height:1.15;margin:6px 0 4px;letter-spacing:-.5px}
+h2{font-size:21px;margin:26px 0 12px;letter-spacing:-.3px}
+h3{font-size:17px;margin:0 0 4px}
+p{margin:0 0 10px}
+.sub{color:var(--soft);margin:0 0 16px}
+.small{font-size:13.5px;color:var(--soft)}
+.center{text-align:center}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.grow{flex:1}
+
+/* topo */
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.brand{display:flex;align-items:center;gap:9px}
+.mini-ico{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--coral),var(--pink));display:grid;place-items:center;position:relative;box-shadow:0 3px 10px rgba(255,94,58,.35)}
+.mini-ico::before{content:"";width:15px;height:15px;border-radius:50%;border:3.5px solid #fff}
+.mini-ico::after{content:"✦";position:absolute;top:3px;right:5px;color:var(--gold);font-size:9px}
+.logo{display:flex;align-items:center;font-weight:800;font-size:23px;color:var(--coral);letter-spacing:-.6px}
+.logo .lens{width:.6em;height:.6em;border:.15em solid var(--coral);border-radius:50%;margin:0 .03em;position:relative;top:.06em}
+.logo .lens::after{content:"✦";position:absolute;top:-.62em;right:-.52em;color:var(--gold);font-size:.5em}
+.logo .light{font-weight:700;opacity:.92}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--coralbg);color:var(--coral);display:grid;place-items:center;font-weight:800}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--soft);font-weight:600;padding:6px 0;margin-bottom:4px}
+
+/* cartões */
+.card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-bottom:12px}
+.hero{background:linear-gradient(135deg,var(--coral),#FF7A4D 60%,var(--pink));color:#fff;border-radius:26px;padding:20px;margin:8px 0 14px;box-shadow:0 10px 26px rgba(255,94,58,.3)}
+.hero .tag{opacity:.9;font-size:14px;font-weight:600}
+.hero h2{margin:4px 0 14px;font-size:24px;color:#fff}
+.hero .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hbtn{background:#fff;color:var(--coral);border-radius:16px;padding:13px 10px;font-weight:700;font-size:15px;line-height:1.2}
+.hbtn.ghost{background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.55)}
+.dark{background:var(--dark);color:#fff}
+.dark .small{color:#B9B8C4}
+
+.btn{display:block;width:100%;background:var(--coral);color:#fff;border-radius:18px;padding:15px;font-weight:700;font-size:16.5px;text-align:center;box-shadow:0 6px 16px rgba(255,94,58,.28)}
+.btn.sec{background:var(--card);color:var(--ink);box-shadow:none;border:1.5px solid var(--line)}
+.btn.darkb{background:var(--ink);box-shadow:none}
+.btn:disabled{opacity:.5}
+.btn+.btn{margin-top:10px}
+.link{color:var(--coral);font-weight:700}
+
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;margin:0 -18px;padding-left:18px;padding-right:18px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:600;font-size:14.5px;white-space:nowrap}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sit{background:var(--card);border-radius:20px;padding:14px;box-shadow:var(--shadow);text-align:left;position:relative;min-height:96px}
+.sit .em{font-size:28px;display:block;margin-bottom:6px}
+.sit b{display:block;font-size:15px;line-height:1.25}
+.sit .small{display:block;margin-top:2px;font-size:12.5px}
+.lock{position:absolute;top:10px;right:12px;font-size:14px;opacity:.75}
+
+.lesson{display:flex;gap:12px;align-items:center;background:var(--card);border-radius:20px;padding:12px;box-shadow:var(--shadow);margin-bottom:10px;width:100%;text-align:left}
+.lesson .num{width:46px;height:46px;border-radius:14px;background:var(--coralbg);color:var(--coral);display:grid;place-items:center;font-weight:800;font-size:18px;flex:0 0 auto}
+.lesson .num.done{background:var(--greenbg);color:var(--green)}
+.lesson b{display:block;font-size:15.5px;line-height:1.25}
+
+.pill{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:3px 9px;background:var(--coralbg);color:var(--coral)}
+.pill.g{background:var(--greenbg);color:var(--green)}
+.pill.d{background:#EEE;color:#555}
+
+.bar{height:9px;border-radius:9px;background:#EEEAE3;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:9px;background:var(--coral)}
+.bar i.g{background:var(--green)}
+
+.step{display:flex;gap:12px;background:var(--card);border-radius:18px;padding:14px;box-shadow:var(--shadow);margin-bottom:10px}
+.step .n{width:30px;height:30px;border-radius:50%;background:var(--coral);color:#fff;display:grid;place-items:center;font-weight:800;flex:0 0 auto;font-size:14px}
+.tip{border-left:5px solid var(--coral);border-radius:16px;background:var(--card);padding:12px 14px;box-shadow:var(--shadow);margin-bottom:10px}
+.tip.g{border-left-color:var(--green)}
+.device{background:var(--coralbg);border-radius:16px;padding:12px 14px;margin:6px 0 12px;font-size:15px}
+.device b{color:var(--coral)}
+
+.photo{position:relative;border-radius:24px;overflow:hidden;background:#EDE6DA;margin:6px 0 14px}
+.photo img{display:block;width:100%;max-height:440px;object-fit:cover}
+.score{position:absolute;top:12px;right:12px;width:82px;height:82px;border-radius:50%;background:#fff;border:6px solid var(--coral);display:grid;place-items:center;text-align:center;box-shadow:0 6px 16px rgba(0,0,0,.18)}
+.score b{font-size:25px;line-height:1}
+.score span{font-size:11px;color:var(--soft);display:block}
+.score.g{border-color:var(--green)}
+
+.metric{display:grid;grid-template-columns:92px 1fr 34px;align-items:center;gap:10px;margin:8px 0;font-weight:600;font-size:14.5px}
+.metric span:last-child{text-align:right;color:var(--soft);font-size:13px}
+
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:#EFEAE2;border-radius:16px;padding:4px;margin-bottom:10px}
+.seg button{border-radius:12px;padding:9px 4px;font-weight:700;font-size:14px;color:var(--soft)}
+.seg button.on{background:var(--ink);color:#fff}
+.caption{white-space:pre-wrap;background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow);font-size:15.5px;margin-bottom:10px}
+.caption .hash{color:var(--coral)}
+
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:14px;margin-bottom:10px}
+.opt.on{border-color:var(--coral);background:#FFF8F5}
+.opt .em{font-size:26px}
+.opt .ck{margin-left:auto;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:#fff;font-size:13px}
+.opt.on .ck{background:var(--coral);border-color:var(--coral)}
+
+.field{margin-bottom:12px}
+.field label{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
+.field input,.field select{width:100%;padding:14px;border-radius:14px;border:1.5px solid var(--line);background:#fff;font-size:16px;outline:none}
+.field input:focus,.field select:focus{border-color:var(--coral)}
+
+.dots{display:flex;gap:6px;justify-content:center;margin:6px 0 14px}
+.dots i{width:8px;height:8px;border-radius:8px;background:var(--line)}
+.dots i.on{width:22px;background:var(--coral)}
+
+.plan{background:var(--card);border:2px solid var(--line);border-radius:22px;padding:16px;margin-bottom:12px;position:relative}
+.plan.best{border-color:var(--coral)}
+.plan .badge{position:absolute;top:-11px;right:16px;background:var(--coral);color:#fff;font-size:12px;font-weight:800;border-radius:999px;padding:3px 10px}
+.plan .price{font-size:26px;font-weight:800;letter-spacing:-.5px}
+.plan ul{margin:8px 0 12px;padding:0;list-style:none}
+.plan li{padding:3px 0 3px 24px;position:relative;font-size:14.5px}
+.plan li::before{content:"✓";position:absolute;left:2px;color:var(--green);font-weight:800}
+
+.lesson-body li{margin-bottom:8px}
+.challenge{background:var(--dark);color:#fff;border-radius:20px;padding:16px;margin:14px 0}
+.challenge .pill{background:rgba(255,255,255,.15);color:#fff}
+
+.hist{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:10px 0;border-bottom:1px solid var(--line)}
+.hist img{width:56px;height:56px;border-radius:14px;object-fit:cover;background:#eee}
+
+.banner{background:#FFF4D6;border-radius:16px;padding:12px 14px;margin-bottom:12px;font-size:14.5px}
+.demo{background:#EAF2FF;color:#2754A0;border-radius:14px;padding:8px 12px;font-size:13px;margin-bottom:12px}
+
+/* abas */
+#tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:20}
+#tabs.hide{display:none}
+#tabs button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;font-weight:600;color:var(--soft);min-width:58px}
+#tabs button svg{width:24px;height:24px}
+#tabs button.on{color:var(--coral)}
+
+#toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:14px;font-weight:600;font-size:14.5px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:90%;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.loading{display:grid;place-items:center;min-height:60vh;text-align:center}
+.spin{width:54px;height:54px;border-radius:50%;border:5px solid var(--coralbg);border-top-color:var(--coral);animation:sp 1s linear infinite;margin:0 auto 16px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.version{color:#B5B2AA;font-size:12px;text-align:center;margin-top:18px}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading"><div><div class="spin"></div><p class="small">Carregando…</p></div></div></div>
+<nav id="tabs" class="hide"></nav>
+<div id="toast"></div>
+<input id="filePick" type="file" accept="image/*" hidden>
+<input id="fileCam" type="file" accept="image/*" capture="environment" hidden>
+
+<script src="config.js"></script>
+<script>
+"use strict";
+const VERSAO = "1.0.0";
+const C = window.SC_CONFIG || {};
+const DEMO = !C.firebase;          // sem Firebase = modo demonstração
+const IA_SIMULADA = !C.workerUrl;  // sem servidor = IA simulada
+
+// ===== Regras dos planos (iguais às do servidor) =====
+const REGRAS = {
+  testeAnalises: 3,   // análises grátis para experimentar
+  aulasGratis: 2,     // aulas liberadas sem plano
+  roteirosGratis: 3,  // roteiros liberados sem plano
+  mensal: 30, anual: 30, vitalicio: 10
+};
+
+// ===== Conteúdo: situações / roteiros =====
+const SITUACOES = [
+  {id:"produto",grupo:"vender",emoji:"📦",nome:"Produto",ex:"Caneca, vela, garrafa, caixa…",
+   passos:[["Luz","Perto de uma janela, com luz do dia indireta (sem sol batendo direto). Desligue o flash e as lâmpadas amarelas."],
+     ["Fundo","Cartolina branca ou de cor neutra, curvada da parede até a mesa, sem dobra (fundo infinito)."],
+     ["Ângulo","Na altura do produto ou um pouco acima (uns 30°). Produtos baixos e planos ficam melhores de cima."],
+     ["Composição","Produto no centro ou num terço, com espaço em volta. Faça 1 de frente, 1 de lado e 1 de detalhe."],
+     ["Edição","Um pouco mais de luz e brilho, contraste leve. Nada de filtro forte: a cor tem de ser a real."]],
+   evite:["Zoom com os dedos (perde qualidade)","Sombra do próprio celular em cima do produto","Objetos sobrando no cenário"],
+   iphone:"Se o seu iPhone tiver lente 2x, use-a: o produto fica sem distorção. Toque no produto para focar e arraste o ícone do sol para ajustar a luz.",
+   android:"Se tiver lente 2x ou 3x, use-a em vez de aproximar com os dedos. Toque no produto para focar e ajuste a luz na barrinha que aparece."},
+  {id:"roupa",grupo:"vender",emoji:"👗",nome:"Roupa para vender",ex:"Peça no cabide, dobrada ou vestida",
+   passos:[["Luz","Luz natural de frente ou de lado: perto de uma janela grande ou na sombra, ao ar livre."],
+     ["Fundo","Parede lisa e clara. Tire do caminho tudo o que não é a peça."],
+     ["Ângulo","Celular na altura da cintura e reto, sem inclinar para baixo. Peça estendida na cama ou no chão: de cima."],
+     ["Composição","A peça inteira + 1 foto de detalhe (tecido, costura, etiqueta) + 1 vestida, se possível."],
+     ["Edição","Deixe o branco branco: a cor da peça tem de ficar fiel. Evite filtros que mudam a cor."]],
+   evite:["Roupa amassada (passe antes)","Cabide torto ou de arame","Luz amarela da casa"],
+   iphone:"Ligue a grade em Ajustes > Câmera > Grade para manter a peça reta na foto.",
+   android:"Ligue as linhas de grade nas configurações da câmera (o nome muda um pouco conforme a marca)."},
+  {id:"comida",grupo:"vender",emoji:"🍰",nome:"Comida e doces",ex:"Bolos, salgados, marmitas, doces",
+   passos:[["Luz","Luz de janela de lado ou por trás do prato: realça textura e brilho."],
+     ["Fundo","Madeira, tecido ou bancada limpa, com 1 ou 2 elementos de apoio (ingrediente, talher, guardanapo)."],
+     ["Ângulo","De cima (90°) para mesas e pratos planos. A 45° para bolos, copos e lanches altos."],
+     ["Composição","Mostre o recheio ou o corte. Uma fatia tirada do bolo dá vontade de comer."],
+     ["Edição","Um pouco mais de luz e tons quentes. Saturação leve, só para dar vida."]],
+   evite:["Flash (deixa a comida sem vida)","Borda do prato suja","Embalagens e potes no fundo"],
+   iphone:"No app Fotos: Editar > Filtros > \"Vívido Quente\" com intensidade baixa.",
+   android:"No editor da galeria, aumente um pouco o \"Calor\" ou a \"Temperatura\"."},
+  {id:"beleza",grupo:"vender",emoji:"💄",nome:"Cosméticos e beleza",ex:"Cremes, perfumes, maquiagem",
+   passos:[["Luz","Luz suave. Em frascos brilhantes, luz de lado evita reflexo branco no rótulo."],
+     ["Fundo","Claro e limpo, ou com elementos que combinem: flor, toalha, pedra, folhas."],
+     ["Ângulo","De frente e reto, na altura do rótulo, para dar para ler a marca."],
+     ["Composição","Rótulo legível + uma foto da textura (um pouco do produto num vidro ou na pele)."],
+     ["Edição","Nitidez leve. Não mude a cor do produto."]],
+   evite:["Reflexo do celular no frasco","Digitais no vidro (limpe antes)","Produto aberto e sujo"],
+   iphone:"Segure o dedo no produto até aparecer \"Bloqueio AE/AF\": o foco e a luz ficam travados.",
+   android:"Em muitos celulares, segurar o dedo na tela trava o foco. Se não, use o modo Pro."},
+  {id:"acessorios",grupo:"vender",emoji:"💍",nome:"Acessórios e joias",ex:"Brincos, colares, relógios, bolsas",
+   passos:[["Luz","Luz difusa (janela com cortina fina) para o brilho não ficar \"estourado\"."],
+     ["Fundo","Escuro (veludo, preto) para prata e dourado. Claro para peças coloridas."],
+     ["Ângulo","Bem de perto, levemente de cima. Use a mão ou um suporte para dar noção de tamanho."],
+     ["Composição","1 foto do conjunto + 1 de detalhe + 1 em uso."],
+     ["Edição","Se o brilho estourar, baixe os \"Realces\". Nitidez leve."]],
+   evite:["Chegar perto demais e perder o foco","Poeira e digitais (use pano de microfibra)"],
+   iphone:"Nos iPhones Pro, o modo macro liga sozinho bem de perto. Se ficar desfocado, afaste um pouco.",
+   android:"Procure o modo \"Macro\". Se não tiver, afaste um pouco e corte a foto depois."},
+  {id:"artesanato",grupo:"vender",emoji:"🧶",nome:"Artesanato e decoração",ex:"Peças feitas à mão, casa",
+   passos:[["Luz","Luz de janela de lado: mostra textura e relevo do trabalho."],
+     ["Fundo","Um ambiente real (estante, mesa posta) que mostre onde a peça fica bonita."],
+     ["Ângulo","De frente e a 45°. Peças planas: de cima."],
+     ["Composição","Peça + algo que dê escala (mão, xícara, livro) + detalhe do acabamento."],
+     ["Edição","Tons naturais, um pouco mais de luz."]],
+   evite:["Cenário bagunçado que chame mais atenção que a peça"],
+   iphone:"O modo Retrato com pouco desfoque destaca a peça no ambiente.",
+   android:"Use o modo Retrato (ou \"Foco dinâmico\") com pouco desfoque para destacar a peça."},
+  {id:"cafe",grupo:"pessoal",emoji:"☕",nome:"Café da manhã",ex:"Mesa, xícara, pão, frutas",
+   passos:[["Luz","Perto da janela, de manhã. Luz suave vindo de lado."],
+     ["Fundo","Mesa limpa. Guardanapo, flores ou um livro dão charme."],
+     ["Ângulo","De cima (90°) para a mesa inteira. A 45° para a xícara e o pão."],
+     ["Composição","Xícara num terço da foto, com espaço vazio. Mãos segurando a xícara dão vida."],
+     ["Edição","Filtro quente leve e um pouco mais de luz."]],
+   evite:["Celular, chaves e embalagens no meio da mesa"],
+   iphone:"No app Fotos: Editar > Filtros > \"Vívido Quente\", com pouca intensidade.",
+   android:"No editor, aumente um pouco a luz e o \"Calor\"."},
+  {id:"selfie",grupo:"pessoal",emoji:"🤳",nome:"Selfie",ex:"Rosto e meio corpo",
+   passos:[["Luz","De frente para a janela (luz no rosto). Nunca de costas para ela."],
+     ["Fundo","Simples, sem bagunça atrás de você."],
+     ["Ângulo","Celular um pouco acima dos olhos, braço esticado. Queixo levemente para frente."],
+     ["Composição","Olhos na linha de cima da grade, com um pouco de espaço acima da cabeça."],
+     ["Edição","Um pouco de brilho. Evite filtros que \"apagam\" a pele."]],
+   evite:["Luz de teto (faz olheiras)","Câmera muito perto (aumenta o nariz)"],
+   iphone:"Para mais qualidade, use a câmera de trás com o temporizador de 3 segundos.",
+   android:"Para mais qualidade, use a câmera de trás com o temporizador e apoie o celular."},
+  {id:"look",grupo:"pessoal",emoji:"👟",nome:"Look do dia",ex:"Corpo inteiro",
+   passos:[["Luz","Sombra aberta ou perto de janela. Evite o sol do meio-dia."],
+     ["Fundo","Parede lisa, porta bonita ou uma rua com cor."],
+     ["Ângulo","Celular na altura da cintura e reto, foto em pé. Assim as pernas não encolhem."],
+     ["Composição","Deixe um pouco de chão abaixo dos pés. Peso numa perna, mãos ocupadas."],
+     ["Edição","Contraste leve e cores naturais."]],
+   evite:["Lente 0,5x muito perto (distorce o corpo)","Cortar os pés na foto"],
+   iphone:"Peça para alguém usar a lente 2x a alguns passos de distância: a proporção fica perfeita.",
+   android:"Se tiver lente 2x, peça para alguém usá-la a alguns passos de distância."},
+  {id:"viagem",grupo:"pessoal",emoji:"🏝️",nome:"Viagem e paisagem",ex:"Lugares, praia, cidade",
+   passos:[["Luz","Início da manhã ou fim da tarde (a luz dourada)."],
+     ["Fundo","O lugar é o protagonista. Horizonte sempre reto."],
+     ["Ângulo","Na altura dos olhos. Para mostrar grandeza, ponha uma pessoa pequena na cena."],
+     ["Composição","Horizonte na linha de cima ou de baixo da grade, nunca no meio."],
+     ["Edição","Céu muito claro? Baixe os \"Realces\". Um pouco de saturação dá vida."]],
+   evite:["Zoom com os dedos","Céu todo branco (estourado)"],
+   iphone:"Ligue a Grade e o Nível em Ajustes > Câmera para o horizonte sair reto.",
+   android:"Ligue as linhas de grade nas configurações da câmera; alguns modelos também têm nível."},
+  {id:"restaurante",grupo:"pessoal",emoji:"🍝",nome:"Comida fora de casa",ex:"Restaurante, café, bar",
+   passos:[["Luz","Escolha a mesa perto da janela. À noite, use a luz do ambiente, sem flash."],
+     ["Fundo","Afaste copos, cardápio e celular do enquadramento."],
+     ["Ângulo","De cima para pratos e mesa; 45° para hambúrguer, drinks e sobremesas."],
+     ["Composição","Prato num terço e um detalhe do lugar (talher, copo) para contar a história."],
+     ["Edição","Luz e calor um pouco acima."]],
+   evite:["Flash","Foto tremida (apoie os cotovelos na mesa)"],
+   iphone:"Com pouca luz, o modo Noite liga sozinho: fique parado até terminar a contagem.",
+   android:"Com pouca luz, use o modo Noite e fique parado até terminar."},
+  {id:"pet",grupo:"pessoal",emoji:"🐶",nome:"Pet",ex:"Cachorro, gato…",
+   passos:[["Luz","Perto da janela ou na rua, na sombra."],
+     ["Fundo","Simples: chão, sofá ou grama."],
+     ["Ângulo","Desça até a altura dos olhos dele."],
+     ["Composição","Foco nos olhos e espaço para o lado para onde ele olha."],
+     ["Edição","Um pouco de brilho e nitidez."]],
+   evite:["Flash (assusta e deixa o olho estranho)"],
+   iphone:"Deslize o botão de foto para a esquerda para tirar várias seguidas (sequência) e escolha a melhor.",
+   android:"Em muitos modelos, segurar ou arrastar o botão de foto tira várias seguidas: depois escolha a melhor."}
+];
+
+// ===== Conteúdo: aulas =====
+const AULAS = [
+  {id:"luz",tema:"Luz",titulo:"Luz de janela sem gastar nada",min:2,sit:"produto",
+   itens:["A melhor luz grátis é a de uma janela, durante o dia.","Ponha o que vai fotografar perto da janela, com a luz vindo de lado.","Sol batendo direto faz sombra dura: use cortina fina ou papel manteiga no vidro.","Desligue as lâmpadas da casa. Misturar luz amarela com luz do dia deixa a cor estranha.","Para clarear o lado escuro, use uma folha branca do outro lado (rebatedor caseiro)."],
+   iphone:"Toque no assunto e arraste o ícone do sol para ajustar a luz antes de clicar.",
+   android:"Toque no assunto e ajuste a luz na barrinha (ícone de sol) antes de clicar.",
+   desafio:"Fotografe o mesmo objeto longe e perto da janela. Analise as duas fotos e compare as notas."},
+  {id:"grade",tema:"Composição",titulo:"A grade e a regra dos terços",min:2,sit:"cafe",
+   itens:["Ligue a grade da câmera: ela divide a tela em 9 partes.","Ponha o assunto principal num dos cruzamentos das linhas, não sempre no meio.","Use as linhas para deixar o horizonte e as bordas da mesa retos.","Deixe espaço para \"respirar\" em volta do assunto."],
+   iphone:"Ajustes > Câmera > Grade.",
+   android:"Configurações da câmera (ícone de engrenagem) > Linhas de grade. O nome muda um pouco conforme a marca.",
+   desafio:"Tire uma foto com o assunto no meio e outra num cruzamento da grade. Qual ficou mais interessante?"},
+  {id:"fundo",tema:"Fundo",titulo:"Fundo limpo e fundo infinito",min:3,sit:"produto",
+   itens:["O fundo não pode roubar a atenção do assunto.","Fundo infinito: cartolina curvada da parede até a mesa, sem dobra. A linha do canto desaparece.","Branco = cara de loja e catálogo. Madeira, tecido e cores = clima e estilo.","Antes de clicar, olhe as bordas da tela e tire tudo o que não precisa estar ali."],
+   iphone:"Depois de tirar, use Editar > Recortar para eliminar sobras nas bordas.",
+   android:"Use a ferramenta de Recortar da galeria para eliminar sobras nas bordas.",
+   desafio:"Monte um fundo infinito com uma cartolina e fotografe um produto. Depois analise a foto."},
+  {id:"angulos",tema:"Ângulo",titulo:"Ângulos que valorizam",min:2,sit:"comida",
+   itens:["De cima (90°): mesas, pratos, roupas estendidas e objetos planos.","A 45°: bolos, copos, lanches e a maioria dos produtos.","De frente (0°): frascos com rótulo, objetos altos e pessoas.","Inclinar o celular distorce. Mantenha-o reto e mude a SUA altura.","Fotografe nos 3 ângulos e escolha o melhor."],
+   iphone:"Ao fotografar de cima, a grade mostra duas cruzes quando o celular está bem na horizontal: alinhe-as.",
+   android:"Alguns modelos mostram um nível ao fotografar de cima. Se o seu não mostra, apoie o celular numa superfície reta.",
+   desafio:"Fotografe o mesmo prato ou produto de cima, a 45° e de frente. Analise a sua favorita."},
+  {id:"foco",tema:"Celular",titulo:"Foco e luz na ponta do dedo",min:2,sit:"beleza",
+   itens:["Toque na tela onde está o assunto: o celular foca e mede a luz ali.","Ficou escura ou clara demais? Depois de tocar, ajuste a luz.","Trave o foco quando for tirar várias fotos iguais.","Limpe a lente com um pano. Dedo na lente deixa a foto \"leitosa\"."],
+   iphone:"Toque para focar e arraste o sol para cima ou para baixo. Segure o dedo para travar (Bloqueio AE/AF).",
+   android:"Toque para focar; aparece uma barra de luz. Em muitos modelos, segurar o dedo trava o foco.",
+   desafio:"Fotografe algo brilhante. Toque nele, ajuste a luz até o rótulo ficar legível e analise."},
+  {id:"retrato",tema:"Celular",titulo:"Modo Retrato sem exagero",min:2,sit:"selfie",
+   itens:["Desfoca o fundo e destaca o assunto: pessoas, produtos e pets.","Fique a cerca de 1 a 2 metros. A câmera avisa se estiver perto demais.","Desfoque demais fica artificial: use pouco.","Nas bordas (cabelo, alças, vidro) o desfoque pode errar. Confira antes de postar."],
+   iphone:"Use o modo Retrato. Depois, em Editar, ajuste a profundidade (o \"f\") para menos desfoque.",
+   android:"Procure \"Retrato\" ou \"Foco dinâmico\". Muitos modelos deixam escolher o nível de desfoque.",
+   desafio:"Faça um retrato de alguém (ou de um produto) com pouco desfoque e analise."},
+  {id:"formatos",tema:"Formatos",titulo:"Formatos: Feed, Stories e WhatsApp",min:2,sit:"produto",
+   itens:["Feed do Instagram: foto em pé (4:5 ou 3:4) ocupa mais espaço na tela do que a quadrada.","Stories, Reels e Status do WhatsApp: tela cheia em pé (9:16).","Catálogo do WhatsApp: a quadrada (1:1) funciona bem.","Nos Stories, o topo e o rodapé ficam cobertos por botões: deixe uma margem.","Tire a foto já pensando onde vai postar."],
+   iphone:"Na câmera, toque na seta do topo para escolher 4:3, 16:9 ou quadrado antes de fotografar.",
+   android:"Na câmera, o ícone de proporção (3:4, 9:16, 1:1) fica no topo, perto do flash.",
+   desafio:"Tire a mesma foto em pé e quadrada. Analise e veja qual a IA sugere para cada uso."},
+  {id:"edicao",tema:"Edição",titulo:"Edição em 1 minuto",min:3,sit:"comida",
+   itens:["Ordem certa: recortar e endireitar → luz → contraste leve → calor → nitidez leve.","Regra de ouro: se der para perceber que tem filtro, passou do ponto.","Produto à venda: a cor tem de ser a real (evita devolução e reclamação).","Comida e café: um pouco mais quente. Produto: neutro."],
+   iphone:"App Fotos > Editar > Ajustar (Exposição, Contraste, Calor, Nitidez) e Filtros.",
+   android:"Galeria ou Google Fotos > Editar > Ajustar (o nome das opções muda um pouco conforme a marca).",
+   desafio:"Edite uma foto seguindo a ordem certa e analise antes e depois."},
+  {id:"vendas",tema:"Vendas",titulo:"Fotos de produto que vendem",min:3,sit:"produto",
+   itens:["O cliente não pode tocar no produto: as fotos fazem esse papel.","Sequência mínima: frente, lado ou costas, detalhe, em uso e escala (ao lado de algo conhecido).","Mesma luz e mesmo fundo em todos os produtos: o perfil fica com cara de loja.","A primeira foto é a capa: produto inteiro e fundo limpo.","Na legenda: o que é, para quem é, preço (ou \"chame no direct\") e como comprar."],
+   iphone:"Crie um álbum no app Fotos para cada produto e guarde ali a sequência completa.",
+   android:"Crie um álbum na galeria para cada produto e guarde ali a sequência completa.",
+   desafio:"Faça a sequência completa de um produto e analise a foto da capa."},
+  {id:"carrossel",tema:"Vendas",titulo:"Carrossel que prende a atenção",min:2,sit:"produto",
+   itens:["Um carrossel do Instagram aceita várias fotos num só post. De 4 a 6 costuma bastar.","Ordem: capa forte → detalhes → em uso → informação (preço, medidas) → chamada para ação.","Mesmo estilo de cor em todas as fotos.","A primeira foto decide se a pessoa desliza."],
+   iphone:"Selecione as fotos na ordem certa no app Fotos antes de compartilhar.",
+   android:"Selecione as fotos na ordem certa na galeria antes de compartilhar.",
+   desafio:"Monte um carrossel de 5 fotos de um produto e analise a capa."}
+];
+
+const OBJETIVOS = [
+  {id:"vender",emoji:"🛍️",nome:"Vender meus produtos",desc:"Instagram, WhatsApp, loja online"},
+  {id:"pessoal",emoji:"✨",nome:"Instagram pessoal",desc:"Fotos mais bonitas para postar"},
+  {id:"negocio",emoji:"🏪",nome:"Meu negócio local",desc:"Restaurante, salão, serviço"},
+  {id:"outro",emoji:"📷",nome:"Outro",desc:"Quero aprender a fotografar melhor"}
+];
+const TONS = [["simpatico","Simpático"],["profissional","Profissional"],["urgente","Urgente"]];
+
+// ===== Estado =====
+let S = {user:null, perfil:null, acesso:null, hist:[], view:"loading", p:{}};
+let auth=null, db=null;
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const sit = id => SITUACOES.find(s=>s.id===id) || SITUACOES[0];
+const aula = id => AULAS.find(a=>a.id===id);
+const cel = () => (S.perfil && S.perfil.celular) || "iphone";
+const celNome = () => cel()==="android" ? "Android" : "iPhone";
+
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2600);}
+function lsGet(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+// ordem das situações conforme o objetivo
+function situacoesOrdenadas(){
+  const o = S.perfil && S.perfil.objetivo;
+  const primeiro = (o==="pessoal") ? "pessoal" : "vender";
+  return SITUACOES.filter(s=>s.grupo===primeiro).concat(SITUACOES.filter(s=>s.grupo!==primeiro));
+}
+function conteudoCompleto(){return !!(S.acesso && S.acesso.conteudoCompleto);}
+function roteiroLiberado(id){
+  if(conteudoCompleto()) return true;
+  return situacoesOrdenadas().slice(0,REGRAS.roteirosGratis).some(s=>s.id===id);
+}
+function aulaLiberada(id){
+  if(conteudoCompleto()) return true;
+  return AULAS.slice(0,REGRAS.aulasGratis).some(a=>a.id===id);
+}
+function usosRestantes(){
+  const a=S.acesso||{};
+  if(a.admin) return 999;
+  if(a.iaLimite>0) return Math.max(0,(a.iaRestante||0));
+  return a.testeRestante||0;
+}
+function textoUsos(){
+  const a=S.acesso||{};
+  if(a.admin) return "Acesso de teste ilimitado";
+  if(a.iaLimite>0) return `${a.iaUsadas||0} de ${a.iaLimite} análises usadas este mês`;
+  return `${a.testeRestante||0} de ${REGRAS.testeAnalises} análises grátis restantes`;
+}
+
+// ===== Navegação =====
+function go(view,p){S.view=view;S.p=p||{};render();window.scrollTo(0,0);}
+const TABS=[
+  ["home","Início",'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'],
+  ["roteiros","Roteiros",'<rect x="3" y="7" width="18" height="13" rx="3"/><circle cx="12" cy="13.5" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/>'],
+  ["analisar","Analisar",'<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2 2.2.8-2.2.8L19 21l-.8-2.2-2.2-.8 2.2-.8z"/>'],
+  ["aprender","Aprender",'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20"/>'],
+  ["perfil","Perfil",'<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>']
+];
+function renderTabs(){
+  const nav=$("#tabs");
+  const semTabs=["loading","auth","onboarding","analisando"].includes(S.view);
+  nav.classList.toggle("hide",semTabs);document.body.classList.toggle("semtabs",semTabs);
+  if(semTabs) return;
+  const ativa={home:"home",situacao:"home",roteiros:"roteiros",roteiro:"roteiros",analisar:"analisar",resultado:"analisar",aprender:"aprender",aula:"aprender",perfil:"perfil",planos:"perfil",regras:"perfil",historico:"perfil"}[S.view]||"home";
+  nav.innerHTML=TABS.map(([id,nome,ico])=>`<button class="${ativa===id?"on":""}" onclick="go('${id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ico}</svg>${nome}</button>`).join("");
+}
+function render(){
+  const v=VIEWS[S.view]||VIEWS.home;
+  $("#app").innerHTML=v();
+  renderTabs();
+  if(S.view==="resultado") mostrarLegenda();
+}
+
+const LOGO=`<div class="logo"><span>sh</span><span class="lens"></span><span>t</span><span class="light">certo</span></div>`;
+function topo(){
+  const ini=((S.perfil&&S.perfil.nome)||"?").trim().charAt(0).toUpperCase();
+  return `<div class="top"><div class="brand"><div class="mini-ico"></div>${LOGO}</div><button class="avatar" onclick="go('perfil')">${esc(ini)}</button></div>
+  ${DEMO?`<div class="demo">Modo demonstração: os dados ficam só neste aparelho e a IA é simulada.</div>`:(IA_SIMULADA?`<div class="demo">Servidor da IA ainda não ligado: as análises são simuladas.</div>`:"")}`;
+}
+function voltar(dest,label){return `<button class="back" onclick="go('${dest}')">‹ ${label||"Voltar"}</button>`;}
+
+// ===== Ecrãs =====
+const VIEWS={};
+
+VIEWS.loading=()=>`<div class="loading"><div><div class="spin"></div><p class="small">Carregando…</p></div></div>`;
+
+VIEWS.auth=()=>{
+  const criar=S.p.modo!=="entrar";
+  return `<div style="padding-top:8vh" class="center">
+    <div style="display:flex;justify-content:center;margin-bottom:10px"><div class="mini-ico" style="width:72px;height:72px;border-radius:20px"></div></div>
+    <div style="display:flex;justify-content:center;font-size:20px">${LOGO.replace('class="logo"','class="logo" style="font-size:34px"')}</div>
+    <p class="sub" style="margin-top:6px">Fotos que vendem, feitas com o seu celular.</p></div>
+  <div class="seg" style="grid-template-columns:1fr 1fr"><button class="${criar?"on":""}" onclick="go('auth',{modo:'criar'})">Criar conta</button><button class="${!criar?"on":""}" onclick="go('auth',{modo:'entrar'})">Entrar</button></div>
+  ${criar?`<div class="field"><label>Seu nome</label><input id="fNome" autocomplete="given-name" placeholder="Como quer ser chamado(a)?"></div>`:""}
+  <div class="field"><label>Email</label><input id="fEmail" type="email" autocomplete="email" inputmode="email" placeholder="seu@email.com"></div>
+  <div class="field"><label>Senha</label><input id="fSenha" type="password" autocomplete="${criar?"new-password":"current-password"}" placeholder="${criar?"Mínimo 6 caracteres":"Sua senha"}"></div>
+  <button class="btn" id="bAuth" onclick="fazerAuth(${criar})">${criar?"Criar minha conta":"Entrar"}</button>
+  ${!criar?`<p class="center" style="margin-top:14px"><button class="link" onclick="esqueciSenha()">Esqueci a senha</button></p>`:`<p class="small center" style="margin-top:12px">Use o mesmo email que vai usar no pagamento.</p>`}`;
+};
+
+VIEWS.onboarding=()=>{
+  const st=S.p.passo||1, d=S.p.dados||{nome:(S.perfil&&S.perfil.nome)||"",objetivo:"",celular:""};
+  S.p.dados=d;
+  let corpo="";
+  if(st===1) corpo=`<h1>Bem-vindo(a)! 👋</h1><p class="sub">O ShotCerto faz a sua foto ficar boa <b>e</b> ensina você a fazer sozinho(a).</p>
+    <div class="field"><label>Como quer ser chamado(a)?</label><input id="oNome" value="${esc(d.nome)}" placeholder="Seu nome"></div>
+    <button class="btn" onclick="obNext()">Continuar</button>`;
+  if(st===2) corpo=`<h1>Para que você quer as fotos?</h1><p class="sub">Você pode mudar isso depois.</p>
+    ${OBJETIVOS.map(o=>`<button class="opt ${d.objetivo===o.id?"on":""}" onclick="S.p.dados.objetivo='${o.id}';render()"><span class="em">${o.emoji}</span><span><b>${o.nome}</b><br><span class="small">${o.desc}</span></span><span class="ck">✓</span></button>`).join("")}
+    <button class="btn" ${d.objetivo?"":"disabled"} onclick="obNext()">Continuar</button>`;
+  if(st===3) corpo=`<h1>Qual é o seu celular?</h1><p class="sub">Assim as dicas já vêm certinhas para o seu aparelho.</p>
+    ${[["iphone","","iPhone","iOS"],["android","🤖","Android","Samsung, Motorola, Xiaomi…"]].map(([id,em,n,ds])=>`<button class="opt ${d.celular===id?"on":""}" onclick="S.p.dados.celular='${id}';render()"><span class="em">${em||"📱"}</span><span><b>${n}</b><br><span class="small">${ds}</span></span><span class="ck">✓</span></button>`).join("")}
+    <button class="btn" ${d.celular?"":"disabled"} onclick="obFim()">Começar</button>`;
+  return `<div style="padding-top:4vh"><div class="dots">${[1,2,3].map(i=>`<i class="${i===st?"on":""}"></i>`).join("")}</div>${corpo}
+  ${st>1?`<p class="center" style="margin-top:12px"><button class="back" onclick="S.p.passo=${st-1};render()">‹ Voltar</button></p>`:""}</div>`;
+};
+
+VIEWS.home=()=>{
+  const nome=(S.perfil&&S.perfil.nome)||"";
+  const sits=situacoesOrdenadas().slice(0,6);
+  const feitas=(S.perfil&&S.perfil.aulasFeitas)||[];
+  const prox=AULAS.filter(a=>!feitas.includes(a.id)).slice(0,2);
+  const a=S.acesso||{};
+  return `${topo()}
+  <h1>Olá, ${esc(nome.split(" ")[0]||"")}</h1>
+  <p class="sub">O que vamos fotografar hoje?</p>
+  ${verifBanner()}
+  <div class="hero"><div class="tag">Nova foto</div><h2>Escolha como quer começar</h2>
+    <div class="btns"><button class="hbtn" onclick="go('analisar')">📷 Já tenho<br>a foto</button><button class="hbtn ghost" onclick="go('roteiros')">✨ Me ajude<br>a tirar</button></div></div>
+  <div class="row between"><h2 style="margin:10px 0">O que vai fotografar?</h2><button class="link small" onclick="go('roteiros')">Ver todos</button></div>
+  <div class="chips">${sits.map(s=>`<button class="chip" onclick="go('situacao',{id:'${s.id}'})">${s.emoji} ${s.nome}</button>`).join("")}</div>
+  <h2>Aprenda em 2 minutos</h2>
+  ${prox.length?prox.map(cartaoAula).join(""):`<div class="card center">🎉 Você concluiu todas as aulas!</div>`}
+  <div class="card dark" style="margin-top:14px"><div class="small">Análises de IA</div><div class="row between"><b style="font-size:19px">${textoUsos()}</b></div>
+   ${a.iaLimite>0?`<div class="bar" style="margin-top:10px;background:#3A3A48"><i style="width:${Math.min(100,(a.iaUsadas||0)/a.iaLimite*100)}%"></i></div>`:""}
+   ${!a.iaLimite&&!a.admin?`<button class="btn" style="margin-top:12px" onclick="go('planos')">Ver planos</button>`:""}</div>`;
+};
+
+function cartaoAula(a){
+  const feitas=(S.perfil&&S.perfil.aulasFeitas)||[];
+  const i=AULAS.indexOf(a)+1, ok=feitas.includes(a.id), lib=aulaLiberada(a.id);
+  return `<button class="lesson" onclick="go('aula',{id:'${a.id}'})"><span class="num ${ok?"done":""}">${ok?"✓":i}</span><span class="grow"><b>${esc(a.titulo)}</b><span class="small">${a.tema} · ${a.min} min ${a.iphone&&cel()==="iphone"?"· dica para iPhone":"· dica para Android"}</span></span>${lib?"":"🔒"}</button>`;
+}
+
+VIEWS.roteiros=()=>{
+  const ord=situacoesOrdenadas();
+  const grupos=[...new Set(ord.map(s=>s.grupo))];
+  return `${topo()}<h1>Me ajude a tirar</h1><p class="sub">Escolha o que vai fotografar e receba um roteiro rápido para o seu ${celNome()}.</p>
+  ${grupos.map(g=>`<h2>${g==="vender"?"Para vender":"Para o seu Instagram"}</h2><div class="grid2">${ord.filter(s=>s.grupo===g).map(s=>`<button class="sit" onclick="go('situacao',{id:'${s.id}'})">${roteiroLiberado(s.id)?"":'<span class="lock">🔒</span>'}<span class="em">${s.emoji}</span><b>${esc(s.nome)}</b><span class="small">${esc(s.ex)}</span></button>`).join("")}</div>`).join("")}`;
+};
+
+VIEWS.situacao=()=>{
+  const s=sit(S.p.id);
+  return `${voltar("home","Início")}<div class="center" style="font-size:56px;margin-top:8px">${s.emoji}</div>
+  <h1 class="center">${esc(s.nome)}</h1><p class="sub center">${esc(s.ex)}</p>
+  <div class="card"><h3>Você já tem a foto?</h3><p class="small">Se já tem, a IA analisa e diz o que melhorar. Se ainda não, damos o passo a passo.</p>
+  <button class="btn" onclick="go('analisar',{sit:'${s.id}'})">📷 Já tenho a foto</button>
+  <button class="btn sec" onclick="go('roteiro',{id:'${s.id}'})">✨ Ainda não, me ajude a tirar</button></div>`;
+};
+
+VIEWS.roteiro=()=>{
+  const s=sit(S.p.id);
+  if(!roteiroLiberado(s.id)) return `${voltar("roteiros","Roteiros")}${bloqueio("Este roteiro faz parte dos planos","Com qualquer plano você libera todos os roteiros e aulas.")}`;
+  return `${voltar("roteiros","Roteiros")}<h1>${s.emoji} ${esc(s.nome)}</h1><p class="sub">Seu roteiro rápido</p>
+  ${s.passos.map((p,i)=>`<div class="step"><span class="n">${i+1}</span><div><h3>${p[0]}</h3><div>${esc(p[1])}</div></div></div>`).join("")}
+  <div class="device"><b>Dica para ${celNome()}:</b> ${esc(cel()==="android"?s.android:s.iphone)}</div>
+  ${s.evite&&s.evite.length?`<div class="tip"><h3>Evite</h3>${s.evite.map(e=>`<div>• ${esc(e)}</div>`).join("")}</div>`:""}
+  <button class="btn" style="margin-top:14px" onclick="tirarFoto('${s.id}',true)">📸 Abrir câmera</button>
+  <button class="btn sec" onclick="go('analisar',{sit:'${s.id}'})">Já tirei, analisar</button>`;
+};
+
+VIEWS.analisar=()=>{
+  const sid=S.p.sit||(S.p.ultimaSit)||situacoesOrdenadas()[0].id;
+  S.p.sit=sid;
+  const tom=S.p.tom||"simpatico"; S.p.tom=tom;
+  const rest=usosRestantes();
+  return `${topo()}<h1>Analisar foto</h1><p class="sub">A IA dá uma nota, diz o que melhorar e já escreve a legenda.</p>
+  <div class="field"><label>O que é a foto?</label><select onchange="S.p.sit=this.value">${situacoesOrdenadas().map(s=>`<option value="${s.id}" ${s.id===sid?"selected":""}>${s.emoji} ${s.nome}</option>`).join("")}</select></div>
+  <div class="field"><label>Tom da legenda</label><div class="seg">${TONS.map(([id,n])=>`<button class="${tom===id?"on":""}" onclick="S.p.tom='${id}';render()">${n}</button>`).join("")}</div></div>
+  ${S.p.img?`<div class="photo"><img src="${S.p.img}" alt="Sua foto"></div>
+    <button class="btn" onclick="analisar()" ${rest>0?"":"disabled"}>✨ Analisar com IA</button>
+    <button class="btn sec" onclick="S.p.img=null;render()">Trocar foto</button>`:
+   `<div class="card center" style="padding:26px 16px"><div style="font-size:44px">🖼️</div><p class="small">Escolha uma foto da galeria ou tire uma agora.</p>
+    <button class="btn" onclick="tirarFoto(S.p.sit,false)">Escolher da galeria</button>
+    <button class="btn sec" onclick="tirarFoto(S.p.sit,true)">📸 Tirar agora</button></div>`}
+  <p class="small center" style="margin-top:12px">${textoUsos()}</p>
+  ${rest<=0?`<div class="banner">Suas análises acabaram. ${S.acesso&&S.acesso.iaLimite>0?"O contador volta no dia 1 do próximo mês.":"Escolha um plano para continuar."} <button class="link" onclick="go('planos')">Ver planos</button></div>`:""}`;
+};
+
+VIEWS.analisando=()=>`<div class="loading"><div><div class="spin"></div><h2 style="margin:0 0 6px">Analisando sua foto…</h2><p class="small">Olhando a luz, o fundo, o ângulo e escrevendo a legenda.</p></div></div>`;
+
+VIEWS.resultado=()=>{
+  const r=S.p.res||{}, b=r.barras||{};
+  const nota=Number(r.nota||0);
+  const leg=S.p.plat||"instagram";
+  const tom=S.p.tom||"simpatico";
+  const met=[["Luz",b.luz],["Fundo",b.fundo],["Ângulo",b.angulo],["Nitidez",b.nitidez],["Composição",b.composicao]].filter(m=>m[1]!=null);
+  return `${voltar(S.p.deHist?"historico":"analisar",S.p.deHist?"Histórico":"Analisar")}
+  <h1>Análise da foto</h1><p class="sub">${esc(r.resumo||"")}</p>
+  <div class="photo"><img src="${S.p.img||S.p.thumb||""}" alt="Sua foto"><div class="score ${nota>=8?"g":""}"><div><b>${nota.toFixed(1).replace(".",",")}</b><span>/10</span></div></div></div>
+  <div class="card">${met.map(([n,v])=>`<div class="metric"><span>${n}</span><div class="bar"><i class="${v>=70?"g":""}" style="width:${v}%"></i></div><span>${v}</span></div>`).join("")}</div>
+  <h2>O que fazer</h2>
+  ${(r.dicas||[]).map(d=>`<div class="tip ${d.tipo==="bom"?"g":""}"><h3>${d.tipo==="bom"?"👍 ":""}${esc(d.titulo)}</h3><div class="small" style="color:var(--ink)">${esc(d.texto)}</div></div>`).join("")}
+  ${r.dica_celular?`<div class="device"><b>No seu ${celNome()}:</b> ${esc(r.dica_celular)}</div>`:""}
+  <h2>Legenda pronta</h2>
+  <div class="seg">${[["instagram","Instagram"],["whatsapp","WhatsApp"],["stories","Stories"]].map(([id,n])=>`<button class="${leg===id?"on":""}" onclick="S.p.plat='${id}';mostrarLegenda();this.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===this))">${n}</button>`).join("")}</div>
+  <div class="caption" id="legenda"></div>
+  <div class="grid2"><button class="btn" onclick="copiarLegenda()">Copiar</button><button class="btn darkb" id="bOutra" onclick="outraVersao()">Outra versão</button></div>
+  <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:6px"><span class="small">Tom:</span>${TONS.map(([id,n])=>`<button class="chip ${tom===id?"on":""}" style="padding:6px 12px;font-size:13px" onclick="S.p.tom='${id}';render()">${n}</button>`).join("")}</div>
+  <p class="small" style="margin-top:6px">Trocar o tom e tocar em "Outra versão" usa 1 análise.</p>
+  <button class="btn sec" style="margin-top:16px" onclick="go('analisar',{sit:'${S.p.sit||""}'})">📸 Tirar de novo e comparar</button>
+  <p class="small center" style="margin-top:14px">A IA pode errar: use as dicas como sugestão.</p>`;
+};
+
+VIEWS.aprender=()=>{
+  const feitas=(S.perfil&&S.perfil.aulasFeitas)||[];
+  const temas=["Tudo",...new Set(AULAS.map(a=>a.tema))];
+  const f=S.p.tema||"Tudo";
+  const lista=AULAS.filter(a=>f==="Tudo"||a.tema===f);
+  return `${topo()}<h1>Aprender</h1><p class="sub">${feitas.length} de ${AULAS.length} aulas concluídas</p>
+  <div class="bar" style="margin:-6px 0 16px"><i class="g" style="width:${feitas.length/AULAS.length*100}%"></i></div>
+  <div class="chips" style="margin-bottom:8px">${temas.map(t=>`<button class="chip ${t===f?"on":""}" onclick="S.p.tema='${t}';render()">${t}</button>`).join("")}</div>
+  ${lista.map(cartaoAula).join("")}`;
+};
+
+VIEWS.aula=()=>{
+  const a=aula(S.p.id); if(!a) return VIEWS.aprender();
+  if(!aulaLiberada(a.id)) return `${voltar("aprender","Aprender")}${bloqueio("Esta aula faz parte dos planos","Com qualquer plano você libera todas as aulas e roteiros.")}`;
+  const feitas=(S.perfil&&S.perfil.aulasFeitas)||[], ok=feitas.includes(a.id);
+  return `${voltar("aprender","Aprender")}<span class="pill">${a.tema} · ${a.min} min</span><h1 style="margin-top:10px">${esc(a.titulo)}</h1>
+  <div class="card lesson-body"><ul style="padding-left:20px;margin:0">${a.itens.map(i=>`<li>${esc(i)}</li>`).join("")}</ul></div>
+  <div class="device"><b>No seu ${celNome()}:</b> ${esc(cel()==="android"?a.android:a.iphone)}</div>
+  <div class="challenge"><span class="pill">Desafio</span><p style="margin:10px 0 12px;font-weight:600">${esc(a.desafio)}</p>
+  <button class="btn" onclick="go('roteiro',{id:'${a.sit}'})">Fazer o desafio</button></div>
+  <button class="btn ${ok?"sec":"darkb"}" onclick="marcarAula('${a.id}')">${ok?"✓ Aula concluída":"Marcar como concluída"}</button>`;
+};
+
+function bloqueio(t,d){return `<div class="card center" style="padding:28px 18px;margin-top:20px"><div style="font-size:44px">🔒</div><h2 style="margin:8px 0">${t}</h2><p class="small">${d}</p><button class="btn" onclick="go('planos')">Ver planos</button></div>`;}
+
+VIEWS.perfil=()=>{
+  const p=S.perfil||{}, a=S.acesso||{};
+  const nomePlano={mensal:"Mensal",anual:"Anual",vitalicio:"Vitalício",admin:"Teste (administrador)"}[a.plano]||"Grátis";
+  const dt=t=>t?new Date(t).toLocaleDateString("pt-BR"):"";
+  return `${topo()}<h1>Perfil</h1><p class="sub">${esc(S.user&&S.user.email||"")}</p>
+  ${verifBanner()}
+  <div class="card"><div class="row between"><div><div class="small">Seu plano</div><b style="font-size:20px">${nomePlano}</b></div>${a.plano?`<span class="pill g">Ativo</span>`:`<span class="pill d">Grátis</span>`}</div>
+   ${a.assinaturaAte&&(a.plano==="mensal"||a.plano==="anual")?`<p class="small" style="margin:8px 0 0">Garantido até ${dt(a.assinaturaAte)}</p>`:""}
+   ${a.plano==="vitalicio"?`<p class="small" style="margin:8px 0 0">Aulas e roteiros para sempre${a.iaAte?` · IA até ${dt(a.iaAte)}`:""}</p>`:""}
+   <p class="small" style="margin:8px 0 10px">${textoUsos()}</p>
+   <button class="btn ${a.plano?"sec":""}" onclick="go('planos')">${a.plano?"Ver planos":"Escolher um plano"}</button>
+   <button class="btn sec" onclick="atualizarAcesso(true)">Já paguei — atualizar</button></div>
+  <div class="card"><div class="field"><label>Nome</label><input id="pNome" value="${esc(p.nome||"")}"></div>
+   <div class="field"><label>Para que quer as fotos?</label><select id="pObj">${OBJETIVOS.map(o=>`<option value="${o.id}" ${p.objetivo===o.id?"selected":""}>${o.nome}</option>`).join("")}</select></div>
+   <div class="field"><label>Seu celular</label><select id="pCel"><option value="iphone" ${cel()==="iphone"?"selected":""}>iPhone</option><option value="android" ${cel()==="android"?"selected":""}>Android</option></select></div>
+   <button class="btn darkb" onclick="salvarPerfilForm()">Salvar</button></div>
+  <div class="card"><button class="row between" style="width:100%" onclick="go('historico')"><b>Histórico de análises</b><span class="small">${S.hist.length} ›</span></button></div>
+  <div class="card"><button class="row between" style="width:100%" onclick="go('regras')"><b>Regras dos planos</b><span class="small">›</span></button></div>
+  ${C.suporteWhatsapp?`<div class="card"><a class="row between" style="color:inherit;text-decoration:none" href="https://wa.me/${esc(C.suporteWhatsapp)}" target="_blank" rel="noopener"><b>Falar com o suporte</b><span class="small">WhatsApp ›</span></a></div>`:""}
+  ${DEMO?`<div class="card"><div class="field"><label>Simular plano (só no modo demonstração)</label><select onchange="demoPlano(this.value)">${[["","Grátis"],["mensal","Mensal"],["anual","Anual"],["vitalicio","Vitalício"]].map(([v,n])=>`<option value="${v}" ${(lsGet("sc_demo_plano","")===v)?"selected":""}>${n}</option>`).join("")}</select></div></div>`:""}
+  <button class="btn sec" onclick="sair()">${DEMO?"Recomeçar demonstração":"Sair da conta"}</button>
+  <div class="version">ShotCerto v${VERSAO}</div>`;
+};
+
+VIEWS.historico=()=>`${voltar("perfil","Perfil")}<h1>Histórico</h1><p class="sub">Suas últimas análises</p>
+  ${S.hist.length?`<div class="card">${S.hist.map((h,i)=>`<button class="hist" onclick="abrirHist(${i})"><img src="${h.thumb||""}" alt=""><span class="grow"><b>${esc(sit(h.sit).nome)}</b><br><span class="small">${h.data?new Date(h.data).toLocaleDateString("pt-BR"):""}</span></span><b>${Number(h.res&&h.res.nota||0).toFixed(1).replace(".",",")}</b></button>`).join("")}</div>`:`<div class="card center small">Ainda não há análises.</div>`}`;
+
+VIEWS.planos=()=>{
+  const pr=C.precos||{};
+  const plano=(id,nome,preco,extra,itens,best)=>`<div class="plan ${best?"best":""}">${best?'<span class="badge">Mais escolhido</span>':""}
+   <div class="row between"><b style="font-size:18px">${nome}</b></div><div class="price">${esc(preco||"")}<span class="small" style="font-weight:600"> ${extra}</span></div>
+   <ul>${itens.map(i=>`<li>${i}</li>`).join("")}</ul>
+   <button class="btn ${best?"":"sec"}" onclick="comprar('${id}')">Quero o ${nome}</button></div>`;
+  return `${voltar("perfil","Perfil")}<h1>Escolha seu plano</h1><p class="sub">Fotos que vendem, sem complicação.</p>
+  ${verifBanner()}
+  ${plano("mensal","Mensal",pr.mensal,"/mês",[`${REGRAS.mensal} análises de IA por mês`,"Legendas prontas para Instagram, WhatsApp e Stories","Todas as aulas e roteiros","Garantido enquanto o mês estiver pago"],false)}
+  ${plano("anual","Anual",pr.anual,"/ano",["Tudo do plano Mensal",`${REGRAS.anual} análises de IA por mês`,"Garantido por 12 meses","Paga uma vez por ano"],true)}
+  ${plano("vitalicio","Vitalício",pr.vitalicio,"pagamento único",["Aulas e roteiros para sempre",`${REGRAS.vitalicio} análises de IA por mês durante 12 meses`,"Depois de 12 meses, a IA fica disponível com o Mensal ou o Anual"],false)}
+  <div class="banner">Pague com <b>o mesmo email</b> da sua conta (${esc(S.user&&S.user.email||"")}). O plano ativa sozinho em alguns minutos.</div>
+  <p class="center"><button class="link" onclick="go('regras')">Veja exatamente o que está incluído</button></p>
+  <p class="small center">Pagamento por Pix, cartão ou boleto, pela plataforma de pagamento.</p>`;
+};
+
+VIEWS.regras=()=>`${voltar(S.p.de||"perfil","Voltar")}<h1>Regras dos planos</h1><p class="sub">Tudo claro antes de comprar.</p>
+  <div class="card"><h3>Grátis</h3><p class="small" style="color:var(--ink)">${REGRAS.testeAnalises} análises de IA para experimentar, ${REGRAS.aulasGratis} aulas e ${REGRAS.roteirosGratis} roteiros.</p></div>
+  <div class="card"><h3>Mensal</h3><p class="small" style="color:var(--ink)">Cada mês pago fica garantido por 30 dias a partir do pagamento. Se a mensalidade seguinte não for paga, o acesso pago termina ao fim do período já pago. Inclui ${REGRAS.mensal} análises de IA por mês, todas as aulas e roteiros.</p></div>
+  <div class="card"><h3>Anual</h3><p class="small" style="color:var(--ink)">Garantido por 12 meses a partir do pagamento. Inclui ${REGRAS.anual} análises de IA por mês, todas as aulas e roteiros. Se não renovar, o acesso pago termina ao fim dos 12 meses.</p></div>
+  <div class="card"><h3>Vitalício</h3><p class="small" style="color:var(--ink)">Pagamento único. As aulas, os roteiros e as dicas ficam liberados para sempre neste app, mesmo que a IA deixe de ser oferecida. Inclui ${REGRAS.vitalicio} análises de IA por mês durante 12 meses a partir da compra; depois disso, a IA só está disponível com o plano Mensal ou Anual.</p></div>
+  <div class="card"><h3>Importante</h3><ul class="small" style="color:var(--ink);padding-left:18px;margin:0">
+   <li>O contador de análises volta a zero no dia 1 de cada mês. Análises não usadas não acumulam.</li>
+   <li>Trocar o tom ou pedir outra versão da legenda usa 1 análise.</li>
+   <li>A IA pode errar: notas e dicas são sugestões.</li>
+   <li>Use no pagamento o mesmo email da sua conta no app.</li>
+   <li>Garantia e reembolso seguem as regras da plataforma de pagamento. Em caso de reembolso, o acesso pago é removido.</li>
+   <li>O que foi pago fica garantido até o fim do período pago. Depois disso, funcionalidades podem ser atualizadas ou descontinuadas.</li></ul></div>`;
+
+function verifBanner(){
+  if(DEMO||!S.user||S.user.emailVerified) return "";
+  return `<div class="banner">📩 Confirme o seu email para poder ativar um plano. <button class="link" onclick="reenviarVerif()">Reenviar email</button> · <button class="link" onclick="atualizarAcesso(true)">Já confirmei</button></div>`;
+}
+
+// ===== Ações =====
+function obNext(){
+  if(S.p.passo===1||!S.p.passo){const n=($("#oNome").value||"").trim();if(!n){toast("Escreva o seu nome");return;}S.p.dados.nome=n;}
+  S.p.passo=(S.p.passo||1)+1;render();
+}
+async function obFim(){
+  const d=S.p.dados;
+  S.perfil=Object.assign({},S.perfil||{},{nome:d.nome,objetivo:d.objetivo,celular:d.celular,aulasFeitas:(S.perfil&&S.perfil.aulasFeitas)||[],criadoEm:Date.now()});
+  await salvarPerfil();
+  go("home");toast(`Tudo pronto, ${d.nome.split(" ")[0]}!`);
+}
+async function salvarPerfilForm(){
+  S.perfil.nome=($("#pNome").value||"").trim()||S.perfil.nome;
+  S.perfil.objetivo=$("#pObj").value;S.perfil.celular=$("#pCel").value;
+  await salvarPerfil();toast("Salvo!");render();
+}
+async function marcarAula(id){
+  const f=S.perfil.aulasFeitas||[];
+  S.perfil.aulasFeitas=f.includes(id)?f.filter(x=>x!==id):f.concat(id);
+  await salvarPerfil();render();
+  if(S.perfil.aulasFeitas.includes(id)) toast("Aula concluída! 🎉");
+}
+
+// escolher/tirar foto
+let _fotoCb=null;
+function tirarFoto(sitId,camera){
+  if(sitId) S.p.ultimaSit=sitId;
+  const inp=camera?$("#fileCam"):$("#filePick");
+  inp.value="";
+  _fotoCb=async(file)=>{
+    try{
+      const img=await lerImagem(file,1280);
+      const tom=S.p.tom;
+      go("analisar",{sit:sitId||S.p.sit,img,tom});
+    }catch(e){toast("Não consegui abrir essa foto. Tente outra.");}
+  };
+  inp.click();
+}
+["#filePick","#fileCam"].forEach(id=>$(id).addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];if(f&&_fotoCb)_fotoCb(f);}));
+
+function lerImagem(file,max){
+  return new Promise((res,rej)=>{
+    const url=URL.createObjectURL(file), img=new Image();
+    img.onload=()=>{const s=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement("canvas");
+      c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+      URL.revokeObjectURL(url);res(c.toDataURL("image/jpeg",.85));};
+    img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error("img"));};
+    img.src=url;
+  });
+}
+function miniatura(dataUrl,max=320){
+  return new Promise(res=>{const img=new Image();img.onload=()=>{const s=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement("canvas");c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext("2d").drawImage(img,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.7));};img.onerror=()=>res("");img.src=dataUrl;});
+}
+
+async function analisar(){
+  if(usosRestantes()<=0){go("planos");return;}
+  const sid=S.p.sit, img=S.p.img, tom=S.p.tom||"simpatico";
+  go("analisando");
+  try{
+    const corpo={imagem:img.split(",")[1],situacao:sit(sid).nome,objetivo:(S.perfil&&S.perfil.objetivo)||"vender",celular:cel(),tom,nome:(S.perfil&&S.perfil.nome)||""};
+    const res=IA_SIMULADA?await iaDemo(corpo,sid):await api("/analisar",corpo);
+    const thumb=await miniatura(img);
+    const item={sit:sid,res,thumb,data:Date.now(),tom};
+    await guardarHist(item);
+    await atualizarAcesso();
+    S.view="resultado";S.p={res,img,thumb,sit:sid,tom,plat:"instagram"};render();window.scrollTo(0,0);
+  }catch(e){
+    go("analisar",{sit:sid,img,tom});
+    if(e.codigo==="sem_creditos"){toast("Suas análises acabaram");go("planos");}
+    else if(e.codigo==="verificar"){toast("Confirme o seu email primeiro");}
+    else toast(e.message||"Não foi possível analisar agora. Tente de novo.");
+  }
+}
+function legendaAtual(){
+  const r=S.p.res||{}, l=r.legendas||{}, plat=S.p.plat||"instagram";
+  let t=l[plat]||"";
+  if(plat==="instagram"&&r.hashtags&&r.hashtags.length) t+="\n\n"+r.hashtags.map(h=>h.startsWith("#")?h:"#"+h).join(" ");
+  return t;
+}
+function mostrarLegenda(){
+  const el=$("#legenda"); if(!el) return;
+  const t=legendaAtual();
+  el.innerHTML=esc(t).replace(/(#[\wÀ-ÿ]+)/g,'<span class="hash">$1</span>');
+}
+async function copiarLegenda(){
+  const t=legendaAtual();
+  try{await navigator.clipboard.writeText(t);toast("Legenda copiada!");}
+  catch(e){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast("Legenda copiada!");}catch(_){toast("Não consegui copiar");}ta.remove();}
+}
+async function outraVersao(){
+  if(usosRestantes()<=0){toast("Suas análises acabaram");go("planos");return;}
+  const b=$("#bOutra"); if(b){b.disabled=true;b.textContent="Escrevendo…";}
+  try{
+    const r=S.p.res;
+    const corpo={descricao:r.descricao||r.resumo||"",situacao:sit(S.p.sit).nome,objetivo:(S.perfil&&S.perfil.objetivo)||"vender",tom:S.p.tom||"simpatico",anterior:r.legendas&&r.legendas.instagram||""};
+    const novo=IA_SIMULADA?await legendaDemo(corpo,S.p.sit):await api("/legenda",corpo);
+    r.legendas=novo.legendas||r.legendas; if(novo.hashtags) r.hashtags=novo.hashtags;
+    await atualizarAcesso();
+    render();toast("Nova versão pronta!");
+  }catch(e){
+    if(e.codigo==="sem_creditos"){go("planos");}
+    toast(e.message||"Não foi possível agora.");
+    if(b){b.disabled=false;b.textContent="Outra versão";}
+  }
+}
+function abrirHist(i){const h=S.hist[i];S.view="resultado";S.p={res:h.res,thumb:h.thumb,sit:h.sit,tom:h.tom||"simpatico",plat:"instagram",deHist:true};render();window.scrollTo(0,0);}
+
+function comprar(plano){
+  if(!DEMO&&S.user&&!S.user.emailVerified){toast("Confirme o seu email antes de pagar");return;}
+  const link=(C.checkout||{})[plano];
+  if(!link){toast(DEMO?"Modo demonstração: use \"Simular plano\" no Perfil.":"Link de pagamento ainda não configurado.");return;}
+  const email=S.user&&S.user.email?encodeURIComponent(S.user.email):"";
+  const url=link+(email?(link.includes("?")?"&":"?")+"email="+email:"");
+  window.open(url,"_blank","noopener");
+}
+
+// ===== Dados (Firebase ou demonstração) =====
+async function salvarPerfil(){
+  if(DEMO){lsSet("sc_perfil",S.perfil);return;}
+  await db.collection("users").doc(S.user.uid).set(S.perfil,{merge:true});
+}
+async function guardarHist(item){
+  S.hist.unshift(item); S.hist=S.hist.slice(0,30);
+  if(DEMO){lsSet("sc_hist",S.hist.slice(0,15));return;}
+  try{await db.collection("users").doc(S.user.uid).collection("analises").add(item);}catch(e){console.warn(e);}
+}
+async function carregarHist(){
+  if(DEMO){S.hist=lsGet("sc_hist",[]);return;}
+  try{const q=await db.collection("users").doc(S.user.uid).collection("analises").orderBy("data","desc").limit(30).get();S.hist=q.docs.map(d=>d.data());}catch(e){S.hist=[];}
+}
+async function atualizarAcesso(manual){
+  try{
+    if(DEMO||IA_SIMULADA){S.acesso=acessoDemo();}
+    else{
+      if(manual&&auth.currentUser){await auth.currentUser.reload();S.user=auth.currentUser;await auth.currentUser.getIdToken(true);}
+      S.acesso=await api("/me");
+    }
+    if(manual){toast(S.acesso.plano?"Plano ativo! ✅":"Ainda não encontramos um plano para este email");render();}
+  }catch(e){if(manual)toast(e.message||"Não foi possível atualizar");}
+}
+async function api(path,body){
+  const token=await auth.currentUser.getIdToken();
+  const r=await fetch(C.workerUrl.replace(/\/$/,"")+path,{method:body?"POST":"GET",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:body?JSON.stringify(body):undefined});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){const e=new Error(j.erro||"Erro de ligação");e.codigo=j.codigo;throw e;}
+  return j;
+}
+
+// ===== Modo demonstração =====
+function acessoDemo(){
+  const plano=lsGet("sc_demo_plano","")||null;
+  const usos=lsGet("sc_demo_usos",{});
+  const mes=new Date().toISOString().slice(0,7);
+  const lim=plano?REGRAS[plano]:0;
+  const usadas=usos[mes]||0, teste=usos.teste||0;
+  return {plano,conteudoCompleto:!!plano,iaLimite:lim,iaUsadas:usadas,iaRestante:Math.max(0,lim-usadas),testeRestante:Math.max(0,REGRAS.testeAnalises-teste),assinaturaAte:plano&&plano!=="vitalicio"?Date.now()+(plano==="anual"?365:30)*864e5:null,iaAte:plano==="vitalicio"?Date.now()+365*864e5:null,verificado:true,admin:false};
+}
+function gastarDemo(){
+  const a=acessoDemo(), usos=lsGet("sc_demo_usos",{}), mes=new Date().toISOString().slice(0,7);
+  if(a.iaLimite>0&&a.iaRestante>0) usos[mes]=(usos[mes]||0)+1;
+  else if(a.testeRestante>0) usos.teste=(usos.teste||0)+1;
+  else {const e=new Error("Suas análises acabaram");e.codigo="sem_creditos";throw e;}
+  lsSet("sc_demo_usos",usos);
+}
+function demoPlano(v){lsSet("sc_demo_plano",v);S.acesso=acessoDemo();render();toast(v?"Plano simulado: "+v:"Voltou ao grátis");}
+const espera=ms=>new Promise(r=>setTimeout(r,ms));
+function legendasModelo(s,tom,obj,v){
+  const vender=obj!=="pessoal";
+  const base={
+    produto:["Feito para durar e para encantar.","Detalhes que fazem a diferença no seu dia."],
+    roupa:["A peça que faltava no seu guarda-roupa.","Conforto e estilo na mesma peça."],
+    comida:["Feito hoje, com carinho, para adoçar o seu dia.","Fresquinho e do jeitinho que você gosta."],
+    beleza:["Seu ritual de cuidado merece esse carinho.","Textura leve, resultado que aparece."],
+    acessorios:["O detalhe que transforma o look.","Brilho na medida certa."],
+    artesanato:["Feito à mão, peça por peça. Nenhuma é igual.","Para deixar a sua casa com a sua cara."],
+    cafe:["Café, luz da manhã e calma. Bom dia!","Começando o dia do jeito certo."],
+    selfie:["Hoje é dia de sorrir para a câmera.","Leve, simples e feliz."],
+    look:["Look do dia aprovado.","Vestindo o que me faz bem."],
+    viagem:["Guardando esse lugar no coração.","Lugares que ficam na memória."],
+    restaurante:["Hoje a comida falou mais alto.","Cada garfada valeu a pena."],
+    pet:["O dono(a) da casa, oficialmente.","Amor de quatro patas."]
+  }[s.id]||["Uma foto que diz tudo."];
+  const frase=base[v%base.length];
+  const cta=vender?{simpatico:"Chama no direct que eu te explico tudinho! 💬",profissional:"Pedidos e informações pelo direct ou WhatsApp.",urgente:"Últimas unidades! Garanta a sua agora no direct. ⏳"}[tom]:{simpatico:"E aí, o que acharam? 💛",profissional:"",urgente:"Corre que esse momento já passou! 😄"}[tom];
+  return {
+    legendas:{
+      instagram:`${frase}\n\n${vender?"✨ Qualidade que dá para ver na foto\n📦 Pronta entrega\n":""}${cta}`.trim(),
+      whatsapp:vender?`${frase} Valor: [seu preço]. ${tom==="urgente"?"Poucas unidades!":"Quer que eu separe para você?"}`:`${frase}`,
+      stories:vender?`${frase.split(".")[0]} ✨\nResponda este story para comprar 👇`:`${frase.split(".")[0]} ✨`
+    },
+    hashtags:vender?["#"+s.id,"#lojaonline","#feitoamao","#compreempequenosnegocios"]:["#"+s.id,"#momentos","#fotodecelular"]
+  };
+}
+async function iaDemo(corpo,sid){
+  await espera(1600); gastarDemo();
+  const s=sit(sid), r=Math.random();
+  const nota=Math.round((6+r*3)*10)/10;
+  const v=()=>Math.round(55+Math.random()*40);
+  const dicas=[{tipo:"melhorar",titulo:s.passos[1][0]+": dá para melhorar",texto:s.passos[1][1]},{tipo:"melhorar",titulo:s.passos[2][0],texto:s.passos[2][1]},{tipo:"bom",titulo:"Ponto forte",texto:"A foto tem boa nitidez. Mantenha o celular firme assim."}];
+  return Object.assign({nota,resumo:"(Simulação) Boa base! Com dois ajustes simples, esta foto fica pronta para postar.",descricao:s.nome,barras:{luz:v(),fundo:v(),angulo:v(),nitidez:v(),composicao:v()},dicas,dica_celular:corpo.celular==="android"?s.android:s.iphone},legendasModelo(s,corpo.tom,corpo.objetivo,0));
+}
+async function legendaDemo(corpo,sid){await espera(900);gastarDemo();return legendasModelo(sit(sid),corpo.tom,corpo.objetivo,1+Math.floor(Math.random()*3));}
+
+// ===== Conta =====
+async function fazerAuth(criar){
+  const email=($("#fEmail").value||"").trim(), senha=$("#fSenha").value||"", nome=criar?($("#fNome").value||"").trim():"";
+  if(criar&&!nome){toast("Escreva o seu nome");return;}
+  if(!email||!senha){toast("Preencha email e senha");return;}
+  const b=$("#bAuth");b.disabled=true;
+  if(DEMO){S.user={uid:"demo",email,emailVerified:true};lsSet("sc_user",S.user);S.perfil=lsGet("sc_perfil",null)||{nome};await iniciarSessao();return;}
+  try{
+    if(criar){
+      S._nomeNovo=nome;
+      const cr=await auth.createUserWithEmailAndPassword(email,senha);
+      try{await cr.user.sendEmailVerification();}catch(e){}
+    }else await auth.signInWithEmailAndPassword(email,senha);
+  }catch(e){b.disabled=false;toast(erroAuth(e));}
+}
+function erroAuth(e){
+  const c=e&&e.code||"";
+  return ({"auth/email-already-in-use":"Este email já tem conta. Toque em Entrar.","auth/invalid-email":"Email inválido.","auth/weak-password":"A senha precisa de pelo menos 6 caracteres.","auth/invalid-credential":"Email ou senha incorretos.","auth/wrong-password":"Email ou senha incorretos.","auth/user-not-found":"Não existe conta com este email.","auth/too-many-requests":"Muitas tentativas. Espere um pouco."})[c]||"Não foi possível. Tente de novo.";
+}
+async function esqueciSenha(){
+  const email=($("#fEmail").value||"").trim();
+  if(!email){toast("Escreva o seu email primeiro");return;}
+  if(DEMO){toast("Modo demonstração: não há senha.");return;}
+  try{await auth.sendPasswordResetEmail(email);toast("Enviámos um email para criar nova senha");}catch(e){toast(erroAuth(e));}
+}
+async function reenviarVerif(){try{await auth.currentUser.sendEmailVerification();toast("Email enviado! Veja também o spam.");}catch(e){toast("Espere um pouco e tente de novo");}}
+async function sair(){
+  if(DEMO){["sc_user","sc_perfil","sc_hist","sc_demo_plano","sc_demo_usos"].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}});S={user:null,perfil:null,acesso:null,hist:[],view:"auth",p:{}};render();return;}
+  await auth.signOut();
+}
+async function iniciarSessao(){
+  if(!DEMO){
+    try{const d=await db.collection("users").doc(S.user.uid).get();S.perfil=d.exists?d.data():(S.perfil||{nome:S._nomeNovo||""});}catch(e){S.perfil=S.perfil||{};}
+  }
+  await Promise.all([carregarHist(),atualizarAcesso()]);
+  if(!S.perfil||!S.perfil.objetivo||!S.perfil.celular){S.view="onboarding";S.p={passo:S.perfil&&S.perfil.nome?2:1,dados:{nome:(S.perfil&&S.perfil.nome)||"",objetivo:"",celular:""}};render();return;}
+  go("home");
+}
+function carregarScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+
+async function iniciar(){
+  if(DEMO){
+    S.user=lsGet("sc_user",null);
+    if(S.user){S.perfil=lsGet("sc_perfil",null);await iniciarSessao();}else go("auth",{modo:"criar"});
+    return;
+  }
+  const FB="https://www.gstatic.com/firebasejs/10.12.2/";
+  try{
+    await carregarScript(FB+"firebase-app-compat.js");
+    await Promise.all([carregarScript(FB+"firebase-auth-compat.js"),carregarScript(FB+"firebase-firestore-compat.js")]);
+  }catch(e){$("#app").innerHTML=`<div class="loading"><div><h2>Sem ligação à internet</h2><p class="small">Verifique a ligação e abra o app de novo.</p></div></div>`;return;}
+  firebase.initializeApp(C.firebase);
+  auth=firebase.auth();db=firebase.firestore();
+  auth.onAuthStateChanged(async u=>{
+    if(!u){const nn=S._nomeNovo;S={user:null,perfil:null,acesso:null,hist:[],view:"auth",p:{modo:"criar"},_nomeNovo:nn};render();return;}
+    S.user=u;S.perfil=null;go("loading");await iniciarSessao();
+  });
+}
+
+if("serviceWorker" in navigator && location.protocol==="https:"){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+iniciar();
+</script>
+</body>
+</html>
